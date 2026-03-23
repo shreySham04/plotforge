@@ -1,0 +1,133 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --base-bg: #020617;
+  --base-text: #e2e8f0;
+  --body-grad-start: #0f172a;
+  --body-grad-end: #020617;
+  --card-bg: rgba(15, 23, 42, 0.8);
+  --card-border: #1e293b;
+  --input-bg: #0f172a;
+  --input-border: #334155;
+  --input-text: #e2e8f0;
+  --button-bg: #2563eb;
+  --button-bg-hover: #3b82f6;
+
+  color: var(--base-text);
+  background: var(--base-bg);
+  font-family: "Segoe UI", "Trebuchet MS", sans-serif;
+}
+
+:root.theme-light {
+  --base-bg: #f8fafc;
+  --base-text: #0f172a;
+  --body-grad-start: #eff6ff;
+  --body-grad-end: #f8fafc;
+  --card-bg: rgba(255, 255, 255, 0.92);
+  --card-border: #cbd5e1;
+  --input-bg: #ffffff;
+  --input-border: #94a3b8;
+  --input-text: #0f172a;
+  --button-bg: #1d4ed8;
+  --button-bg-hover: #1e40af;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  color: var(--base-text);
+  background: radial-gradient(circle at top, var(--body-grad-start) 0%, var(--body-grad-end) 55%);
+}
+
+.input {
+  @apply w-full rounded-lg px-3 py-2 outline-none;
+  border: 1px solid var(--input-border);
+  background: var(--input-bg);
+  color: var(--input-text);
+}
+
+.input:focus {
+  border-color: #3b82f6;
+}
+
+.btn {
+  @apply rounded-lg px-4 py-2 font-semibold text-white transition;
+  background: var(--button-bg);
+}
+
+.btn:hover {
+  background: var(--button-bg-hover);
+}
+
+.card {
+  @apply rounded-xl p-4 shadow-glow;
+  border: 1px solid var(--card-border);
+  background: var(--card-bg);
+}
+
+:root.theme-light .bg-base {
+  background: transparent;
+}
+
+:root.theme-light .bg-slate-950\/95,
+:root.theme-light .bg-slate-950\/90,
+:root.theme-light .bg-slate-900\/80,
+:root.theme-light .bg-slate-900\/90,
+:root.theme-light .bg-slate-900\/70,
+:root.theme-light .bg-slate-900\/60,
+:root.theme-light .bg-slate-900\/50,
+:root.theme-light .bg-slate-900,
+:root.theme-light .bg-slate-800,
+:root.theme-light .bg-slate-800\/70,
+:root.theme-light .bg-slate-800\/60,
+:root.theme-light .bg-slate-800\/50 {
+  background-color: rgba(255, 255, 255, 0.92) !important;
+}
+
+:root.theme-light .border-slate-800,
+:root.theme-light .border-slate-700,
+:root.theme-light .border-slate-600 {
+  border-color: #cbd5e1 !important;
+}
+
+:root.theme-light .text-slate-100,
+:root.theme-light .text-slate-200,
+:root.theme-light .text-slate-300,
+:root.theme-light .text-slate-400,
+:root.theme-light .text-slate-500,
+:root.theme-light .text-slate-600 {
+  color: #1e293b !important;
+}
+
+/* Ensure dark gradients become light gradients in light mode */
+:root.theme-light .from-slate-900 {
+  --tw-gradient-from: #ffffff var(--tw-gradient-from-position) !important;
+  --tw-gradient-to: rgb(255 255 255 / 0) var(--tw-gradient-to-position) !important;
+  --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to) !important;
+}
+
+:root.theme-light .via-slate-900 {
+  --tw-gradient-to: rgb(255 255 255 / 0) var(--tw-gradient-to-position) !important;
+  --tw-gradient-stops: var(--tw-gradient-from), #f1f5f9 var(--tw-gradient-via-position), var(--tw-gradient-to) !important;
+}
+
+:root.theme-light .to-blue-950\/50 {
+  --tw-gradient-to: rgb(219 234 254 / 0.85) var(--tw-gradient-to-position) !important;
+}
+
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-up {
+  animation: fade-up 0.8s ease-out both;
+}

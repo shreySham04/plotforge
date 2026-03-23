@@ -1,0 +1,60 @@
+### Register
+POST http://localhost:8080/api/auth/register
+Content-Type: application/json
+
+{
+  "username": "alex",
+  "email": "alex@example.com",
+  "password": "secret123"
+}
+
+### Login
+POST http://localhost:8080/api/auth/login
+Content-Type: application/json
+
+{
+  "username": "alex",
+  "password": "secret123"
+}
+
+### Me
+GET http://localhost:8080/api/auth/me
+Authorization: Bearer {{token}}
+
+### Create Project
+POST http://localhost:8080/api/projects
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "title": "Midnight Signal",
+  "type": "SCRIPT"
+}
+
+### List Projects
+GET http://localhost:8080/api/projects
+Authorization: Bearer {{token}}
+
+### Invite Collaborator
+POST http://localhost:8080/api/projects/1/invite
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "email": "friend@example.com",
+  "role": "EDITOR"
+}
+
+### Update Content
+PUT http://localhost:8080/api/content/1
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "sectionNumber": 1,
+  "text": "INT. ROOM - NIGHT\n\nJOHN\nSomething feels wrong."
+}
+
+### Content History
+GET http://localhost:8080/api/content/1/history
+Authorization: Bearer {{token}}
