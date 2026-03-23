@@ -2,7 +2,7 @@
 
 ## Backend (Spring Boot)
 
-1. Open terminal in `demo (2)/demo`.
+1. Open terminal in `demo`.
 2. Ensure JDK 21 and Maven are available.
 3. Run:
 

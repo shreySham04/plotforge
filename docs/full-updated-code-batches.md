@@ -1,8 +1,8 @@
-﻿# Full Updated Code (Sequential Batches)
+# Full Updated Code (Sequential Batches)
 
 ## Batch 1
 
-### demo (2)/demo/src/main/java/com/writerapp/model/Project.java
+### demo/src/main/java/com/writerapp/model/Project.java
 ```java
 package com.writerapp.model;
 
@@ -80,7 +80,7 @@ public class Project {
 }
 ```
 
-### demo (2)/demo/src/main/java/com/writerapp/model/Content.java
+### demo/src/main/java/com/writerapp/model/Content.java
 ```java
 package com.writerapp.model;
 
@@ -142,7 +142,7 @@ public class Content {
 }
 ```
 
-### demo (2)/demo/src/main/java/com/writerapp/model/Collaborator.java
+### demo/src/main/java/com/writerapp/model/Collaborator.java
 ```java
 package com.writerapp.model;
 
@@ -199,7 +199,7 @@ public class Collaborator {
 }
 ```
 
-### demo (2)/demo/src/main/java/com/writerapp/model/VersionHistory.java
+### demo/src/main/java/com/writerapp/model/VersionHistory.java
 ```java
 package com.writerapp.model;
 
@@ -258,7 +258,7 @@ public class VersionHistory {
 }
 ```
 
-### demo (2)/demo/src/main/java/com/writerapp/model/Comment.java
+### demo/src/main/java/com/writerapp/model/Comment.java
 ```java
 package com.writerapp.model;
 
@@ -318,7 +318,7 @@ public class Comment {
 }
 ```
 
-### demo (2)/demo/src/main/java/com/writerapp/repository/ProjectRepository.java
+### demo/src/main/java/com/writerapp/repository/ProjectRepository.java
 ```java
 package com.writerapp.repository;
 
@@ -355,7 +355,7 @@ public interface ProjectRepository extends JpaRepository<Project, Long> {
 }
 ```
 
-### demo (2)/demo/src/main/java/com/writerapp/repository/VersionHistoryRepository.java
+### demo/src/main/java/com/writerapp/repository/VersionHistoryRepository.java
 ```java
 package com.writerapp.repository;
 
@@ -371,7 +371,7 @@ public interface VersionHistoryRepository extends JpaRepository<VersionHistory, 
 }
 ```
 
-### demo (2)/demo/src/main/java/com/writerapp/repository/CommentRepository.java
+### demo/src/main/java/com/writerapp/repository/CommentRepository.java
 ```java
 package com.writerapp.repository;
 
@@ -389,7 +389,7 @@ public interface CommentRepository extends JpaRepository<Comment, Long> {
 
 ## Batch 2
 
-### demo (2)/demo/src/main/java/com/writerapp/dto/PageResponse.java
+### demo/src/main/java/com/writerapp/dto/PageResponse.java
 ```java
 package com.writerapp.dto;
 
@@ -411,7 +411,7 @@ public class PageResponse<T> {
 }
 ```
 
-### demo (2)/demo/src/main/java/com/writerapp/dto/VersionHistoryResponse.java
+### demo/src/main/java/com/writerapp/dto/VersionHistoryResponse.java
 ```java
 package com.writerapp.dto;
 
@@ -432,7 +432,7 @@ public class VersionHistoryResponse {
 }
 ```
 
-### demo (2)/demo/src/main/java/com/writerapp/dto/CommentCreateRequest.java
+### demo/src/main/java/com/writerapp/dto/CommentCreateRequest.java
 ```java
 package com.writerapp.dto;
 
@@ -459,7 +459,7 @@ public class CommentCreateRequest {
 }
 ```
 
-### demo (2)/demo/src/main/java/com/writerapp/dto/CommentResponse.java
+### demo/src/main/java/com/writerapp/dto/CommentResponse.java
 ```java
 package com.writerapp.dto;
 
@@ -481,7 +481,7 @@ public class CommentResponse {
 }
 ```
 
-### demo (2)/demo/src/main/java/com/writerapp/dto/SharedProjectResponse.java
+### demo/src/main/java/com/writerapp/dto/SharedProjectResponse.java
 ```java
 package com.writerapp.dto;
 
@@ -498,7 +498,7 @@ public class SharedProjectResponse {
 }
 ```
 
-### demo (2)/demo/src/main/java/com/writerapp/dto/ProjectResponse.java
+### demo/src/main/java/com/writerapp/dto/ProjectResponse.java
 ```java
 package com.writerapp.dto;
 
@@ -522,7 +522,7 @@ public class ProjectResponse {
 }
 ```
 
-### demo (2)/demo/src/main/java/com/writerapp/dto/CollaboratorResponse.java
+### demo/src/main/java/com/writerapp/dto/CollaboratorResponse.java
 ```java
 package com.writerapp.dto;
 
@@ -543,7 +543,7 @@ public class CollaboratorResponse {
 }
 ```
 
-### demo (2)/demo/src/main/java/com/writerapp/dto/CollaboratorInviteRequest.java
+### demo/src/main/java/com/writerapp/dto/CollaboratorInviteRequest.java
 ```java
 package com.writerapp.dto;
 
@@ -571,7 +571,7 @@ public class CollaboratorInviteRequest {
 
 ## Batch 3
 
-### demo (2)/demo/src/main/java/com/writerapp/dto/LoginRequest.java
+### demo/src/main/java/com/writerapp/dto/LoginRequest.java
 ```java
 package com.writerapp.dto;
 
@@ -592,7 +592,7 @@ public class LoginRequest {
 }
 ```
 
-### demo (2)/demo/src/main/java/com/writerapp/service/ProjectPermissionService.java
+### demo/src/main/java/com/writerapp/service/ProjectPermissionService.java
 ```java
 package com.writerapp.service;
 
@@ -675,7 +675,7 @@ public class ProjectPermissionService {
 }
 ```
 
-### demo (2)/demo/src/main/java/com/writerapp/service/ProjectService.java
+### demo/src/main/java/com/writerapp/service/ProjectService.java
 ```java
 package com.writerapp.service;
 
@@ -985,7 +985,7 @@ public class ProjectService {
 }
 ```
 
-### demo (2)/demo/src/main/java/com/writerapp/service/ContentService.java
+### demo/src/main/java/com/writerapp/service/ContentService.java
 ```java
 package com.writerapp.service;
 
@@ -1138,7 +1138,7 @@ public class ContentService {
 }
 ```
 
-### demo (2)/demo/src/main/java/com/writerapp/service/VersionHistoryService.java
+### demo/src/main/java/com/writerapp/service/VersionHistoryService.java
 ```java
 package com.writerapp.service;
 
@@ -1234,7 +1234,7 @@ public class VersionHistoryService {
 }
 ```
 
-### demo (2)/demo/src/main/java/com/writerapp/service/CommentService.java
+### demo/src/main/java/com/writerapp/service/CommentService.java
 ```java
 package com.writerapp.service;
 
@@ -1332,7 +1332,7 @@ public class CommentService {
 }
 ```
 
-### demo (2)/demo/src/main/java/com/writerapp/controller/ProjectController.java
+### demo/src/main/java/com/writerapp/controller/ProjectController.java
 ```java
 package com.writerapp.controller;
 
@@ -1469,7 +1469,7 @@ public class ProjectController {
 }
 ```
 
-### demo (2)/demo/src/main/java/com/writerapp/controller/ShareController.java
+### demo/src/main/java/com/writerapp/controller/ShareController.java
 ```java
 package com.writerapp.controller;
 
@@ -1500,7 +1500,7 @@ public class ShareController {
 
 ## Batch 4
 
-### demo (2)/demo/src/main/java/com/writerapp/controller/CommentController.java
+### demo/src/main/java/com/writerapp/controller/CommentController.java
 ```java
 package com.writerapp.controller;
 
@@ -1556,7 +1556,7 @@ public class CommentController {
 }
 ```
 
-### demo (2)/demo/src/main/java/com/writerapp/config/SecurityConfig.java
+### demo/src/main/java/com/writerapp/config/SecurityConfig.java
 ```java
 package com.writerapp.config;
 
@@ -1661,7 +1661,7 @@ public class SecurityConfig {
 }
 ```
 
-### demo (2)/demo/src/main/java/com/writerapp/websocket/EditorMessage.java
+### demo/src/main/java/com/writerapp/websocket/EditorMessage.java
 ```java
 package com.writerapp.websocket;
 
@@ -1680,7 +1680,7 @@ public class EditorMessage {
 }
 ```
 
-### demo (2)/demo/src/main/java/com/writerapp/websocket/CollaborationController.java
+### demo/src/main/java/com/writerapp/websocket/CollaborationController.java
 ```java
 package com.writerapp.websocket;
 
@@ -1717,7 +1717,7 @@ public class CollaborationController {
 }
 ```
 
-### demo (2)/demo/pom.xml
+### demo/pom.xml
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -1875,7 +1875,7 @@ public class CollaborationController {
 
 ## Backend (Spring Boot)
 
-1. Open terminal in `demo (2)/demo`.
+1. Open terminal in `demo`.
 2. Ensure JDK 21 and Maven are available.
 3. Run:
 
@@ -3013,7 +3013,7 @@ export default function SharedProjectPage() {
           <section className="space-y-4">
             <div className="card">
               <h1 className="text-2xl font-bold">{project.title}</h1>
-              <p className="mt-1 text-sm text-blue-300">{project.type} â€¢ Shared read-only</p>
+              <p className="mt-1 text-sm text-blue-300">{project.type} • Shared read-only</p>
             </div>
 
             {content.map((section) => (
