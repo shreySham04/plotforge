@@ -15,8 +15,7 @@ export default function CreateFanFuture() {
   const [selectedMedia, setSelectedMedia] = useState(preselected);
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
-  const [issuesOrProblems, setIssuesOrProblems] = useState("");
-  const [relationType, setRelationType] = useState("THEORY");
+  const [postType, setPostType] = useState("THEORY");
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
 
@@ -36,6 +35,11 @@ export default function CreateFanFuture() {
     setSaving(true);
     setError("");
     try {
+      const relationType = postType === "PROBLEM" ? "THEORY" : postType;
+      const issuesOrProblems = postType === "PROBLEM"
+        ? "Focus on unresolved issues/problems from the original movie or series."
+        : null;
+
       const created = await createFanPost({
         title,
         content,
@@ -44,7 +48,7 @@ export default function CreateFanFuture() {
         posterPath: selectedMedia.poster_path,
         mediaType,
         relationType,
-        issuesOrProblems: issuesOrProblems.trim() || null
+        issuesOrProblems
       });
       navigate(`/fanfuture/${created.id}`);
     } catch (err) {
@@ -74,19 +78,13 @@ export default function CreateFanFuture() {
             required
           />
           <div className="grid gap-3 md:grid-cols-2">
-            <select className="input" value={relationType} onChange={(e) => setRelationType(e.target.value)}>
+            <select className="input" value={postType} onChange={(e) => setPostType(e.target.value)}>
               <option value="THEORY">THEORY</option>
               <option value="SEQUEL">PREDICTION</option>
               <option value="ALTERNATE_ENDING">ALTERNATE ENDING</option>
+              <option value="PROBLEM">PROBLEM / ISSUE FIX</option>
             </select>
           </div>
-          <textarea
-            className="input min-h-[110px]"
-            placeholder="Any issues/problems with the series or movie you want to address in your idea?"
-            value={issuesOrProblems}
-            onChange={(e) => setIssuesOrProblems(e.target.value)}
-            maxLength={1500}
-          />
           <FanEditor value={content} onChange={setContent} placeholder="What happens in your fan-made future timeline?" />
           {error && <p className="text-sm text-rose-400">{error}</p>}
           <div className="flex justify-end">

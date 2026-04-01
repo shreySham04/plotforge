@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Navbar from "../components/Navbar";
 import ProjectCard from "../components/ProjectCard";
 import {
@@ -73,6 +73,58 @@ export default function DashboardPage({ mode = {} }) {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [editingProject, setEditingProject] = useState(null);
+  const [genreEffect, setGenreEffect] = useState(null);
+  const [effectParticles, setEffectParticles] = useState([]);
+  const effectTimeoutRef = useRef(null);
+
+  function pickGenreEffect(genre) {
+    const normalized = (genre || "").toLowerCase();
+    if (normalized.includes("horror")) return "bats";
+    if (normalized.includes("romance")) return "hearts";
+    if (normalized.includes("sci")) return "stars";
+    if (normalized.includes("thriller") || normalized.includes("mystery")) return "fog";
+    if (normalized.includes("action") || normalized.includes("war") || normalized.includes("sport")) return "sparks";
+    return "fade";
+  }
+
+  function buildParticles(effectType) {
+    const countByEffect = {
+      bats: 15,
+      hearts: 18,
+      stars: 20,
+      fog: 10,
+      sparks: 20,
+      fade: 14
+    };
+    const count = countByEffect[effectType] || 14;
+
+    return Array.from({ length: count }, (_, index) => ({
+      id: `${effectType}-${index}-${Date.now()}`,
+      left: 4 + Math.random() * 92,
+      delay: Math.random() * 260,
+      duration: 700 + Math.random() * 900,
+      size: effectType === "fog" ? 28 + Math.random() * 40 : 10 + Math.random() * 22,
+      drift: -30 + Math.random() * 60
+    }));
+  }
+
+  function triggerGenreEffect(primaryGenre, projectType) {
+    const effectType = pickGenreEffect(primaryGenre);
+    setEffectParticles(buildParticles(effectType));
+    setGenreEffect({
+      id: Date.now(),
+      type: effectType,
+      title: `${projectType} created`
+    });
+
+    if (effectTimeoutRef.current) {
+      clearTimeout(effectTimeoutRef.current);
+    }
+    effectTimeoutRef.current = setTimeout(() => {
+      setGenreEffect(null);
+      setEffectParticles([]);
+    }, 1800);
+  }
 
   async function loadProjects(targetPage = page) {
     setLoading(true);
@@ -112,6 +164,14 @@ export default function DashboardPage({ mode = {} }) {
     loadProjects(0);
     loadReferenceData();
   }, [subjectFilter]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(() => {
+    return () => {
+      if (effectTimeoutRef.current) {
+        clearTimeout(effectTimeoutRef.current);
+      }
+    };
+  }, []);
 
   function resetForm() {
     setForm({
@@ -244,6 +304,7 @@ export default function DashboardPage({ mode = {} }) {
         await updateProject(editingProject.id, payload);
       } else {
         await createProject(payload);
+        triggerGenreEffect(form.genrePrimary || form.genreSecondary, projectType);
       }
       resetForm();
       await loadReferenceData();
@@ -281,6 +342,26 @@ export default function DashboardPage({ mode = {} }) {
 
   return (
     <div className="min-h-screen bg-base text-slate-100">
+      {genreEffect && (
+        <div className={`genre-fx-overlay genre-fx-${genreEffect.type}`} key={genreEffect.id} aria-hidden="true">
+          <div className="genre-fx-vignette" />
+          {effectParticles.map((particle) => (
+            <span
+              key={particle.id}
+              className="genre-fx-particle"
+              style={{
+                left: `${particle.left}%`,
+                width: `${particle.size}px`,
+                height: `${particle.size}px`,
+                animationDelay: `${particle.delay}ms`,
+                animationDuration: `${particle.duration}ms`,
+                "--fx-drift": `${particle.drift}px`
+              }}
+            />
+          ))}
+          <div className="genre-fx-label">{genreEffect.title}</div>
+        </div>
+      )}
       <Navbar />
       <main className="mx-auto max-w-6xl px-4 py-6">
         <section className="card mb-6">

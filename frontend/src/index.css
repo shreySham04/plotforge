@@ -131,3 +131,218 @@ body {
 .animate-fade-up {
   animation: fade-up 0.8s ease-out both;
 }
+
+.genre-fx-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.genre-fx-vignette {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  animation: genre-fx-vignette 1.8s ease-out both;
+}
+
+.genre-fx-label {
+  position: absolute;
+  left: 50%;
+  bottom: 6%;
+  transform: translateX(-50%);
+  padding: 0.45rem 0.8rem;
+  border-radius: 999px;
+  border: 1px solid rgba(148, 163, 184, 0.45);
+  background: rgba(2, 6, 23, 0.7);
+  color: #e2e8f0;
+  font-size: 0.78rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  animation: genre-fx-label 1.8s ease-out both;
+}
+
+.genre-fx-particle {
+  --fx-drift: 0px;
+  position: absolute;
+  top: 110%;
+  left: 50%;
+  opacity: 0;
+}
+
+.genre-fx-fade .genre-fx-vignette {
+  background: radial-gradient(circle at center, rgba(30, 41, 59, 0.1), rgba(2, 6, 23, 0.45));
+}
+
+.genre-fx-fade .genre-fx-particle {
+  border-radius: 999px;
+  background: rgba(191, 219, 254, 0.45);
+  filter: blur(0.5px);
+  animation-name: genre-fx-rise;
+  animation-timing-function: ease-out;
+  animation-fill-mode: both;
+}
+
+.genre-fx-bats .genre-fx-vignette {
+  background: radial-gradient(circle at center, rgba(127, 29, 29, 0.16), rgba(2, 6, 23, 0.58));
+}
+
+.genre-fx-bats .genre-fx-particle {
+  background: #111827;
+  clip-path: polygon(0 52%, 18% 18%, 38% 46%, 50% 35%, 62% 46%, 82% 18%, 100% 52%, 72% 70%, 50% 57%, 28% 70%);
+  animation-name: genre-fx-fly;
+  animation-timing-function: ease-in;
+  animation-fill-mode: both;
+}
+
+.genre-fx-hearts .genre-fx-vignette {
+  background: radial-gradient(circle at center, rgba(190, 24, 93, 0.17), rgba(2, 6, 23, 0.45));
+}
+
+.genre-fx-hearts .genre-fx-particle {
+  background: linear-gradient(135deg, #fb7185, #f43f5e);
+  transform: rotate(45deg);
+  border-radius: 2px;
+  animation-name: genre-fx-rise;
+  animation-timing-function: ease-out;
+  animation-fill-mode: both;
+}
+
+.genre-fx-hearts .genre-fx-particle::before,
+.genre-fx-hearts .genre-fx-particle::after {
+  content: "";
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background: inherit;
+}
+
+.genre-fx-hearts .genre-fx-particle::before {
+  left: -50%;
+}
+
+.genre-fx-hearts .genre-fx-particle::after {
+  top: -50%;
+}
+
+.genre-fx-stars .genre-fx-vignette {
+  background: radial-gradient(circle at center, rgba(30, 64, 175, 0.2), rgba(2, 6, 23, 0.5));
+}
+
+.genre-fx-stars .genre-fx-particle {
+  background: linear-gradient(135deg, #67e8f9, #60a5fa);
+  clip-path: polygon(50% 0, 61% 35%, 98% 35%, 68% 57%, 79% 92%, 50% 70%, 21% 92%, 32% 57%, 2% 35%, 39% 35%);
+  animation-name: genre-fx-rise;
+  animation-timing-function: ease-out;
+  animation-fill-mode: both;
+}
+
+.genre-fx-fog .genre-fx-vignette {
+  background: radial-gradient(circle at center, rgba(71, 85, 105, 0.2), rgba(2, 6, 23, 0.4));
+}
+
+.genre-fx-fog .genre-fx-particle {
+  border-radius: 999px;
+  background: rgba(148, 163, 184, 0.28);
+  filter: blur(2.5px);
+  animation-name: genre-fx-drift;
+  animation-timing-function: ease-out;
+  animation-fill-mode: both;
+}
+
+.genre-fx-sparks .genre-fx-vignette {
+  background: radial-gradient(circle at center, rgba(202, 138, 4, 0.12), rgba(2, 6, 23, 0.46));
+}
+
+.genre-fx-sparks .genre-fx-particle {
+  background: linear-gradient(180deg, #fef08a, #f59e0b);
+  border-radius: 999px;
+  animation-name: genre-fx-spark;
+  animation-timing-function: ease-in;
+  animation-fill-mode: both;
+}
+
+@keyframes genre-fx-vignette {
+  0% {
+    opacity: 0;
+  }
+  18% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+@keyframes genre-fx-label {
+  0% {
+    opacity: 0;
+    transform: translateX(-50%) translateY(10px);
+  }
+  20% {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+  100% {
+    opacity: 0;
+    transform: translateX(-50%) translateY(8px);
+  }
+}
+
+@keyframes genre-fx-rise {
+  0% {
+    opacity: 0;
+    transform: translateX(0) translateY(8px) scale(0.65);
+  }
+  20% {
+    opacity: 0.95;
+  }
+  100% {
+    opacity: 0;
+    transform: translateX(var(--fx-drift)) translateY(-100vh) scale(1.15);
+  }
+}
+
+@keyframes genre-fx-fly {
+  0% {
+    opacity: 0;
+    transform: translateX(0) translateY(0) scale(0.45) rotate(-8deg);
+  }
+  20% {
+    opacity: 0.95;
+  }
+  100% {
+    opacity: 0;
+    transform: translateX(var(--fx-drift)) translateY(-98vh) scale(1.05) rotate(5deg);
+  }
+}
+
+@keyframes genre-fx-drift {
+  0% {
+    opacity: 0;
+    transform: translateX(calc(var(--fx-drift) * -0.4)) translateY(2px);
+  }
+  25% {
+    opacity: 0.7;
+  }
+  100% {
+    opacity: 0;
+    transform: translateX(var(--fx-drift)) translateY(-72vh);
+  }
+}
+
+@keyframes genre-fx-spark {
+  0% {
+    opacity: 0;
+    transform: translateX(0) translateY(0) scale(0.7);
+  }
+  18% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: translateX(var(--fx-drift)) translateY(-92vh) scale(0.65);
+  }
+}

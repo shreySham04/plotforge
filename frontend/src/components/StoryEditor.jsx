@@ -15,15 +15,13 @@ export default function StoryEditor({ sectionNumber, text, onSectionChange, onTe
         />
         <span className="text-xs text-slate-500">{sectionLabel("STORY", sectionNumber)}</span>
       </div>
-      <div
-        key={sectionNumber}
-        className="input h-[60vh] flex-1 overflow-auto"
-        contentEditable={!readOnly}
-        suppressContentEditableWarning
-        onInput={(e) => onTextChange(e.currentTarget.innerText)}
-        dangerouslySetInnerHTML={{ __html: text }}
-      >
-      </div>
+      <textarea
+        className="input h-[60vh] flex-1 resize-none"
+        value={text}
+        onChange={(e) => onTextChange(e.target.value)}
+        placeholder="Write your chapter here..."
+        readOnly={readOnly}
+      />
       <button className="btn mt-3 self-end" onClick={onSave} disabled={readOnly || saving}>
         {saving ? "Saving..." : "Save Chapter"}
       </button>
