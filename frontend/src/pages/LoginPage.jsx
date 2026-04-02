@@ -38,7 +38,7 @@ export default function LoginPage() {
       <form className="card w-full" onSubmit={onSubmit}>
         <h1 className="mb-4 text-2xl font-bold text-slate-100">Login</h1>
         <input className="input mb-3" type="email" placeholder="Email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} required />
-        <input className="input mb-3" type="password" placeholder="Password" value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} />
+        <input className="input mb-3" type="password" placeholder="Password" value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} required />
         {error && <p className="mb-3 text-sm text-rose-400">{error}</p>}
         {success && <p className="mb-3 text-sm text-emerald-400">{success}</p>}
         <button className="btn w-full" type="submit" disabled={loading}>

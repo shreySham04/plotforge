@@ -1,11 +1,17 @@
 export function extractApiError(error, fallback = "Request failed") {
   if (error?.friendlyMessage) return error.friendlyMessage;
-  if (!error?.response) return "Cannot reach backend server. Make sure API is running on http://localhost:8080.";
+  if (!error?.response) {
+    const baseUrl = import.meta.env.VITE_API_BASE_URL || "http://localhost:8080";
+    return `Cannot reach backend server. Check VITE_API_BASE_URL (${baseUrl}).`;
+  }
 
   const data = error?.response?.data;
   if (!data) return fallback;
 
   if (error.response.status === 401) {
+    if (!localStorage.getItem("writerapp_token")) {
+      return "Invalid email or password.";
+    }
     return "Your session expired. Please login again.";
   }
   if (error.response.status === 403) {

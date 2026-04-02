@@ -1,4 +1,5 @@
 import axios from "axios";
+import { clearStoredToken, getStoredToken } from "./authToken";
 
 const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL || "http://localhost:8080").replace(/\/+$/, "");
 const baseURL = API_BASE_URL.endsWith("/api") ? API_BASE_URL : `${API_BASE_URL}/api`;
@@ -8,7 +9,7 @@ const api = axios.create({
 });
 
 api.interceptors.request.use((config) => {
-  const token = localStorage.getItem("writerapp_token");
+  const token = getStoredToken();
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }
@@ -19,9 +20,13 @@ api.interceptors.response.use(
   (response) => response,
   (error) => {
     const status = error?.response?.status;
-    if (status === 401) {
-      localStorage.removeItem("writerapp_token");
-      if (!window.location.pathname.startsWith("/login")) {
+    const requestUrl = String(error?.config?.url || "");
+    const isAuthRequest = /\/auth\/(login|register)/.test(requestUrl);
+
+    if (status === 401 && getStoredToken() && !isAuthRequest) {
+      clearStoredToken();
+      const onAuthScreen = window.location.pathname.startsWith("/login") || window.location.pathname.startsWith("/register");
+      if (!onAuthScreen) {
         window.location.href = "/login";
       }
     }

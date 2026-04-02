@@ -1,10 +1,11 @@
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
 import { getCurrentUser, login as loginApi, register as registerApi, updateMe } from "../services/authService";
+import { clearStoredToken, getStoredToken, setStoredToken } from "../services/authToken";
 
 const AuthContext = createContext(null);
 
 export function AuthProvider({ children }) {
-  const [token, setToken] = useState(localStorage.getItem("writerapp_token"));
+  const [token, setToken] = useState(getStoredToken());
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -18,7 +19,7 @@ export function AuthProvider({ children }) {
         const current = await getCurrentUser();
         setUser(current);
       } catch {
-        localStorage.removeItem("writerapp_token");
+        clearStoredToken();
         setToken(null);
         setUser(null);
       } finally {
@@ -38,7 +39,7 @@ export function AuthProvider({ children }) {
         if (!response?.token) {
           throw new Error("Login succeeded but no token was returned");
         }
-        localStorage.setItem("writerapp_token", response.token);
+        setStoredToken(response.token);
         setToken(response.token);
         const current = await getCurrentUser();
         setUser(current);
@@ -48,20 +49,20 @@ export function AuthProvider({ children }) {
         if (!response?.token) {
           throw new Error("Registration succeeded but no token was returned");
         }
-        localStorage.setItem("writerapp_token", response.token);
+        setStoredToken(response.token);
         setToken(response.token);
         const current = await getCurrentUser();
         setUser(current);
       },
       async updateProfile(payload) {
         const response = await updateMe(payload);
-        localStorage.setItem("writerapp_token", response.token);
+        setStoredToken(response.token);
         setToken(response.token);
         const current = await getCurrentUser();
         setUser(current);
       },
       logout() {
-        localStorage.removeItem("writerapp_token");
+        clearStoredToken();
         setToken(null);
         setUser(null);
       }
