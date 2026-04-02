@@ -5,10 +5,16 @@ export function extractApiError(error, fallback = "Request failed") {
     return `Cannot reach backend server. Check VITE_API_BASE_URL (${baseUrl}).`;
   }
 
+  const requestUrl = String(error?.config?.url || "");
+  const isLoginRequest = /\/auth\/login/.test(requestUrl);
+
   const data = error?.response?.data;
   if (!data) return fallback;
 
   if (error.response.status === 401) {
+    if (isLoginRequest) {
+      return "Invalid email or password.";
+    }
     if (!localStorage.getItem("writerapp_token")) {
       return "Invalid email or password.";
     }
