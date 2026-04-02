@@ -21,7 +21,9 @@ api.interceptors.response.use(
   (error) => {
     const status = error?.response?.status;
     const requestUrl = String(error?.config?.url || "");
-    const isAuthRequest = /\/auth\/(login|register)/.test(requestUrl);
+    const isLoginRequest = /\/auth\/login/.test(requestUrl);
+    const isRegisterRequest = /\/auth\/register/.test(requestUrl);
+    const isAuthRequest = isLoginRequest || isRegisterRequest;
 
     if (status === 401 && getStoredToken() && !isAuthRequest) {
       clearStoredToken();
@@ -36,7 +38,13 @@ api.interceptors.response.use(
     } else if (status === 403) {
       error.friendlyMessage = "You do not have permission to perform this action.";
     } else if (status === 401) {
-      error.friendlyMessage = "Your session has expired. Please login again.";
+      if (isLoginRequest) {
+        error.friendlyMessage = "Invalid email or password.";
+      } else if (isRegisterRequest) {
+        error.friendlyMessage = "Registration failed. Please verify your details and try again.";
+      } else {
+        error.friendlyMessage = "Your session has expired. Please login again.";
+      }
     }
 
     return Promise.reject(error);
