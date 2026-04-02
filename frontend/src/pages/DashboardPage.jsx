@@ -12,6 +12,7 @@ import {
 } from "../services/projectService";
 import { searchMedia } from "../services/fanFutureService";
 import { createSubject, getSubjects } from "../services/subjectService";
+import { useAuth } from "../context/AuthContext";
 import { extractApiError } from "../utils/errors";
 
 const GENRE_OPTIONS = [
@@ -48,6 +49,7 @@ const GENRE_OPTIONS = [
 ];
 
 export default function DashboardPage({ mode = {} }) {
+  const { user } = useAuth();
   const onlyType = mode.onlyType || null;
   const heading = mode.heading || "Create Project";
   const [projects, setProjects] = useState([]);
@@ -364,6 +366,10 @@ export default function DashboardPage({ mode = {} }) {
       )}
       <Navbar />
       <main className="mx-auto max-w-6xl px-4 py-6">
+        <section className="mb-6 rounded-xl border border-slate-700/70 bg-slate-900/70 p-4">
+          <p className="text-sm text-slate-300">Logged in as</p>
+          <p className="text-xl font-bold text-blue-300">{user?.username || "User"}</p>
+        </section>
         <section className="card mb-6">
           <h2 className="mb-3 text-xl font-semibold">{heading}</h2>
           <form className="space-y-3" onSubmit={onCreate}>

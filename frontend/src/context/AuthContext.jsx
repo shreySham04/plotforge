@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
-import { login as loginApi, me, register as registerApi, updateMe } from "../services/authService";
+import { getCurrentUser, login as loginApi, register as registerApi, updateMe } from "../services/authService";
 
 const AuthContext = createContext(null);
 
@@ -15,7 +15,7 @@ export function AuthProvider({ children }) {
         return;
       }
       try {
-        const current = await me();
+        const current = await getCurrentUser();
         setUser(current);
       } catch {
         localStorage.removeItem("writerapp_token");
@@ -35,23 +35,29 @@ export function AuthProvider({ children }) {
       loading,
       async login(credentials) {
         const response = await loginApi(credentials);
+        if (!response?.token) {
+          throw new Error("Login succeeded but no token was returned");
+        }
         localStorage.setItem("writerapp_token", response.token);
         setToken(response.token);
-        const current = await me();
+        const current = await getCurrentUser();
         setUser(current);
       },
       async register(payload) {
         const response = await registerApi(payload);
+        if (!response?.token) {
+          throw new Error("Registration succeeded but no token was returned");
+        }
         localStorage.setItem("writerapp_token", response.token);
         setToken(response.token);
-        const current = await me();
+        const current = await getCurrentUser();
         setUser(current);
       },
       async updateProfile(payload) {
         const response = await updateMe(payload);
         localStorage.setItem("writerapp_token", response.token);
         setToken(response.token);
-        const current = await me();
+        const current = await getCurrentUser();
         setUser(current);
       },
       logout() {

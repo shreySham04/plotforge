@@ -1,7 +1,8 @@
-import { Link, NavLink } from "react-router-dom";
+import { Link, NavLink, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 
 export default function Navbar() {
+  const navigate = useNavigate();
   const { user, logout } = useAuth();
   const tabs = [
     { label: "Home", to: "/" },
@@ -12,6 +13,11 @@ export default function Navbar() {
     { label: "About", to: "/about" },
     { label: "Profile", to: "/profile" }
   ];
+
+  function handleLogout() {
+    logout();
+    navigate("/login", { replace: true });
+  }
 
   return (
     <header className="relative border-b border-slate-800 bg-slate-950/95 backdrop-blur">
@@ -53,7 +59,7 @@ export default function Navbar() {
               <Link to="/dashboard" className="text-sm text-slate-300 hover:text-blue-300">
                 {user.username}
               </Link>
-              <button className="btn" onClick={logout}>
+              <button className="btn" onClick={handleLogout}>
                 Logout
               </button>
             </>
