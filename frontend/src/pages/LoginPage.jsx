@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { extractApiError } from "../utils/errors";
@@ -10,6 +10,13 @@ export default function LoginPage() {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [loading, setLoading] = useState(false);
+  const isMountedRef = useRef(true);
+
+  useEffect(() => {
+    return () => {
+      isMountedRef.current = false;
+    };
+  }, []);
 
   useEffect(() => {
     if (token) {
@@ -19,17 +26,29 @@ export default function LoginPage() {
 
   async function onSubmit(e) {
     e.preventDefault();
+    if (loading) return;
+
     setError("");
     setSuccess("");
     setLoading(true);
+
     try {
-      await login(form);
-      setSuccess("Login successful. Redirecting...");
+      const response = await login(form);
+      console.log("Login success:", response);
+      if (isMountedRef.current) {
+        setSuccess("Login successful. Redirecting...");
+      }
       navigate("/dashboard", { replace: true });
     } catch (err) {
-      setError(extractApiError(err, "Login failed"));
+      console.error("Login failed:", err);
+      const backendMessage = err?.response?.data?.message;
+      if (isMountedRef.current) {
+        setError(backendMessage || extractApiError(err, "Login failed"));
+      }
     } finally {
-      setLoading(false);
+      if (isMountedRef.current) {
+        setLoading(false);
+      }
     }
   }
 

@@ -4,6 +4,15 @@ import { clearStoredToken, getStoredToken, setStoredToken } from "../services/au
 
 const AuthContext = createContext(null);
 
+function userFromAuthResponse(response) {
+  if (!response) return null;
+  return {
+    id: response.userId ?? null,
+    username: response.username || "",
+    email: response.email || ""
+  };
+}
+
 export function AuthProvider({ children }) {
   const [token, setToken] = useState(getStoredToken());
   const [user, setUser] = useState(null);
@@ -41,8 +50,13 @@ export function AuthProvider({ children }) {
         }
         setStoredToken(response.token);
         setToken(response.token);
-        const current = await getCurrentUser();
-        setUser(current);
+        setUser(userFromAuthResponse(response));
+
+        getCurrentUser()
+          .then((current) => setUser(current))
+          .catch(() => {
+            // Keep login successful even if /me is temporarily unavailable.
+          });
       },
       async register(payload) {
         const response = await registerApi(payload);
@@ -51,8 +65,13 @@ export function AuthProvider({ children }) {
         }
         setStoredToken(response.token);
         setToken(response.token);
-        const current = await getCurrentUser();
-        setUser(current);
+        setUser(userFromAuthResponse(response));
+
+        getCurrentUser()
+          .then((current) => setUser(current))
+          .catch(() => {
+            // Keep registration successful even if /me is temporarily unavailable.
+          });
       },
       async updateProfile(payload) {
         const response = await updateMe(payload);

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { extractApiError } from "../utils/errors";
@@ -10,6 +10,13 @@ export default function RegisterPage() {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [loading, setLoading] = useState(false);
+  const isMountedRef = useRef(true);
+
+  useEffect(() => {
+    return () => {
+      isMountedRef.current = false;
+    };
+  }, []);
 
   useEffect(() => {
     if (token) {
@@ -19,17 +26,29 @@ export default function RegisterPage() {
 
   async function onSubmit(e) {
     e.preventDefault();
+    if (loading) return;
+
     setError("");
     setSuccess("");
     setLoading(true);
+
     try {
-      await register(form);
-      setSuccess("Registration successful. Redirecting...");
+      const response = await register(form);
+      console.log("Register success:", response);
+      if (isMountedRef.current) {
+        setSuccess("Registration successful. Redirecting...");
+      }
       navigate("/dashboard", { replace: true });
     } catch (err) {
-      setError(extractApiError(err, "Registration failed"));
+      console.error("Register failed:", err);
+      const backendMessage = err?.response?.data?.message;
+      if (isMountedRef.current) {
+        setError(backendMessage || extractApiError(err, "Registration failed"));
+      }
     } finally {
-      setLoading(false);
+      if (isMountedRef.current) {
+        setLoading(false);
+      }
     }
   }
 
@@ -43,7 +62,7 @@ export default function RegisterPage() {
         {error && <p className="mb-3 text-sm text-rose-400">{error}</p>}
         {success && <p className="mb-3 text-sm text-emerald-400">{success}</p>}
         <button className="btn w-full" type="submit" disabled={loading}>
-          {loading ? "Creating account..." : "Create Account"}
+          {loading ? "Creating account..." : "Register"}
         </button>
         <p className="mt-3 text-sm text-slate-300">
           Already registered? <Link className="text-blue-400" to="/login">Login</Link>

@@ -1,27 +1,27 @@
-import api from "./api";
+import apiClient from "./axios";
 
 export async function login(credentials) {
   const payload = {
     ...credentials,
     username: credentials.username || credentials.email
   };
-  const { data } = await api.post("/auth/login", payload);
-  return data;
+  const res = await apiClient.post("/auth/login", payload);
+  return res.data;
 }
 
 export async function register(userData) {
-  const { data } = await api.post("/auth/register", userData);
-  return data;
+  const res = await apiClient.post("/auth/register", userData);
+  return res.data;
 }
 
 export async function getCurrentUser() {
-  const { data } = await api.get("/auth/me");
-  return data;
+  const res = await apiClient.get("/auth/me");
+  return res.data;
 }
 
 export const me = getCurrentUser;
 
 export async function updateMe(payload) {
-  const { data } = await api.put("/auth/me", payload);
-  return data;
+  const res = await apiClient.put("/auth/me", payload);
+  return res.data;
 }
