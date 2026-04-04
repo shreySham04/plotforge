@@ -20,10 +20,10 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     @Override
     public void registerStompEndpoints(@NonNull StompEndpointRegistry registry) {
         registry.addEndpoint("/ws/editor")
-            .setAllowedOrigins("http://localhost:5173", "http://localhost:3000");
+            .setAllowedOriginPatterns("http://localhost:*", "http://127.0.0.1:*", "https://plotforge-liard.vercel.app", "https://*.vercel.app");
 
         registry.addEndpoint("/ws/editor")
-                .setAllowedOrigins("http://localhost:5173", "http://localhost:3000")
+                .setAllowedOriginPatterns("http://localhost:*", "http://127.0.0.1:*", "https://plotforge-liard.vercel.app", "https://*.vercel.app")
                 .withSockJS();
     }
 }
