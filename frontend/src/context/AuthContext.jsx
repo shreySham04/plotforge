@@ -3,6 +3,21 @@ import { getCurrentUser, login as loginApi, register as registerApi, updateMe } 
 import { clearStoredToken, getStoredToken, setStoredToken } from "../services/authToken";
 
 const AuthContext = createContext(null);
+const AUTH_BOOTSTRAP_TIMEOUT_MS = 10000;
+
+function sleep(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+async function fetchWithRetry(fn, retries = 2, delayMs = 2000) {
+  try {
+    return await fn();
+  } catch (error) {
+    if (retries <= 0) throw error;
+    await sleep(delayMs);
+    return fetchWithRetry(fn, retries - 1, delayMs);
+  }
+}
 
 function userFromAuthResponse(response) {
   if (!response) return null;
@@ -19,23 +34,60 @@ export function AuthProvider({ children }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    let cancelled = false;
+    let timeoutId;
+
     async function bootstrap() {
+      setLoading(true);
+
       if (!token) {
         setLoading(false);
         return;
       }
+
+      timeoutId = window.setTimeout(() => {
+        if (!cancelled) {
+          // Prevent an indefinite splash state if backend cold-start is too slow.
+          setLoading(false);
+        }
+      }, AUTH_BOOTSTRAP_TIMEOUT_MS);
+
       try {
-        const current = await getCurrentUser();
-        setUser(current);
-      } catch {
-        clearStoredToken();
-        setToken(null);
-        setUser(null);
+        const current = await fetchWithRetry(() => getCurrentUser(), 2, 2000);
+        if (!cancelled) {
+          setUser(current);
+        }
+      } catch (error) {
+        if (!cancelled) {
+          const status = error?.response?.status;
+
+          if (status === 401) {
+            // Token is truly invalid/expired.
+            clearStoredToken();
+            setToken(null);
+            setUser(null);
+          } else {
+            // Backend may be sleeping/unreachable. Keep persisted token so session survives reload.
+          }
+        }
       } finally {
-        setLoading(false);
+        if (timeoutId) {
+          window.clearTimeout(timeoutId);
+        }
+        if (!cancelled) {
+          setLoading(false);
+        }
       }
     }
+
     bootstrap();
+
+    return () => {
+      cancelled = true;
+      if (timeoutId) {
+        window.clearTimeout(timeoutId);
+      }
+    };
   }, [token]);
 
   const value = useMemo(
@@ -52,7 +104,7 @@ export function AuthProvider({ children }) {
         setToken(response.token);
         setUser(userFromAuthResponse(response));
 
-        getCurrentUser()
+        fetchWithRetry(() => getCurrentUser(), 2, 2000)
           .then((current) => setUser(current))
           .catch(() => {
             // Keep login successful even if /me is temporarily unavailable.
@@ -67,7 +119,7 @@ export function AuthProvider({ children }) {
         setToken(response.token);
         setUser(userFromAuthResponse(response));
 
-        getCurrentUser()
+        fetchWithRetry(() => getCurrentUser(), 2, 2000)
           .then((current) => setUser(current))
           .catch(() => {
             // Keep registration successful even if /me is temporarily unavailable.
