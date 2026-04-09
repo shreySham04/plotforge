@@ -9,6 +9,7 @@ export default function Navbar() {
     { label: "Story", to: "/stories" },
     { label: "Script", to: "/scripts" },
     { label: "Fan Future", to: "/fanfuture" },
+    { label: "Fanconcept", to: "/fanconcept" },
     { label: "Review", to: "/reviews" },
     { label: "About", to: "/about" },
     { label: "Profile", to: "/profile" }

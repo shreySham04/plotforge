@@ -10,6 +10,7 @@ import ScriptsPage from "./pages/ScriptsPage";
 import FanFuturePage from "./pages/FanFuturePage";
 import FanFutureDetail from "./pages/FanFutureDetail";
 import CreateFanFuture from "./pages/CreateFanFuture";
+import FanConceptPage from "./pages/FanConceptPage";
 import ProfilePage from "./pages/ProfilePage";
 import ReviewsPage from "./pages/ReviewsPage";
 import About from "./pages/About";
@@ -67,6 +68,14 @@ export default function App() {
           element={
             <ProtectedRoute>
               <FanFutureDetail />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/fanconcept"
+          element={
+            <ProtectedRoute>
+              <FanConceptPage />
             </ProtectedRoute>
           }
         />
