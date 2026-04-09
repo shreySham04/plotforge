@@ -14,6 +14,16 @@ export async function register(userData) {
   return res.data;
 }
 
+export async function forgotPassword(email) {
+  const res = await apiClient.post("/auth/forgot-password", { email });
+  return res.data;
+}
+
+export async function resetPassword(payload) {
+  const res = await apiClient.post("/auth/reset-password", payload);
+  return res.data;
+}
+
 export async function getCurrentUser() {
   const res = await apiClient.get("/auth/me");
   return res.data;

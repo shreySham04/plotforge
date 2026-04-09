@@ -33,14 +33,12 @@ export default function RegisterPage() {
     setLoading(true);
 
     try {
-      const response = await register(form);
-      console.log("Register success:", response);
+      await register(form);
       if (isMountedRef.current) {
         setSuccess("Registration successful. Redirecting...");
       }
       navigate("/dashboard", { replace: true });
     } catch (err) {
-      console.error("Register failed:", err);
       const backendMessage = err?.response?.data?.message;
       if (isMountedRef.current) {
         setError(backendMessage || extractApiError(err, "Registration failed"));

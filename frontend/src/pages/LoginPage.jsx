@@ -33,14 +33,12 @@ export default function LoginPage() {
     setLoading(true);
 
     try {
-      const response = await login(form);
-      console.log("Login success:", response);
+      await login(form);
       if (isMountedRef.current) {
         setSuccess("Login successful. Redirecting...");
       }
       navigate("/dashboard", { replace: true });
     } catch (err) {
-      console.error("Login failed:", err);
       const backendMessage = err?.response?.data?.message;
       if (isMountedRef.current) {
         setError(backendMessage || extractApiError(err, "Login failed"));
@@ -58,6 +56,9 @@ export default function LoginPage() {
         <h1 className="mb-4 text-2xl font-bold text-slate-100">Login</h1>
         <input className="input mb-3" type="email" placeholder="Email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} required />
         <input className="input mb-3" type="password" placeholder="Password" value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} required />
+        <div className="mb-3 text-right text-sm">
+          <Link className="text-blue-400" to="/forgot-password">Forgot password?</Link>
+        </div>
         {error && <p className="mb-3 text-sm text-rose-400">{error}</p>}
         {success && <p className="mb-3 text-sm text-emerald-400">{success}</p>}
         <button className="btn w-full" type="submit" disabled={loading}>
