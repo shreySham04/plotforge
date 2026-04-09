@@ -5,7 +5,7 @@ export default function ProtectedRoute({ children }) {
   const { token, loading } = useAuth();
 
   if (loading) {
-    return <div className="p-8 text-center text-slate-300">Loading...</div>;
+    return <div className="p-8 text-center text-slate-300">Connecting to server...</div>;
   }
 
   if (!token) {
