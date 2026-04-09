@@ -1,8 +1,10 @@
 import { Client } from "@stomp/stompjs";
 
-const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL || "https://plotforge-1.onrender.com").replace(/\/+$/, "");
-const NORMALIZED_API_BASE = API_BASE_URL.endsWith("/api") ? API_BASE_URL.slice(0, -4) : API_BASE_URL;
-const WS_URL = (import.meta.env.VITE_WS_URL || `${NORMALIZED_API_BASE.replace(/^http/, "ws")}/ws/editor`).replace(/\/+$/, "");
+const LOCAL_HTTP_PATTERN = /^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/i;
+const API = (import.meta.env.VITE_API_BASE_URL || "https://plotforge-1.onrender.com/api").replace(/\/+$/, "");
+const HTTPS_API = LOCAL_HTTP_PATTERN.test(API) ? API : API.replace(/^http:\/\//i, "https://");
+const NORMALIZED_API_BASE = HTTPS_API.endsWith("/api") ? HTTPS_API.slice(0, -4) : HTTPS_API;
+const WS_URL = (import.meta.env.VITE_WS_URL || `${NORMALIZED_API_BASE.replace(/^https?/i, "wss")}/ws/editor`).replace(/\/+$/, "");
 
 export function createEditorSocket(projectId, onMessage) {
   const client = new Client({

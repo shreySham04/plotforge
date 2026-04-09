@@ -1,7 +1,10 @@
 export function extractApiError(error, fallback = "Request failed") {
   if (error?.friendlyMessage) return error.friendlyMessage;
   if (!error?.response) {
-    const baseUrl = import.meta.env.VITE_API_BASE_URL || "https://plotforge-1.onrender.com";
+    const configured = (import.meta.env.VITE_API_BASE_URL || "https://plotforge-1.onrender.com/api").replace(/\/+$/, "");
+    const baseUrl = /^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/i.test(configured)
+      ? configured
+      : configured.replace(/^http:\/\//i, "https://");
     return `Cannot reach backend server. Check VITE_API_BASE_URL (${baseUrl}).`;
   }
 

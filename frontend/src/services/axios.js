@@ -1,11 +1,26 @@
 import axios from "axios";
 import { clearStoredToken, getStoredToken } from "./authToken";
 
-const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL || "https://plotforge-1.onrender.com").replace(/\/+$/, "");
-const baseURL = API_BASE_URL.endsWith("/api") ? API_BASE_URL : `${API_BASE_URL}/api`;
+const LOCAL_HTTP_PATTERN = /^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/i;
+const API = (import.meta.env.VITE_API_BASE_URL || "https://plotforge-1.onrender.com/api").replace(/\/+$/, "");
+const HTTPS_API = LOCAL_HTTP_PATTERN.test(API) ? API : API.replace(/^http:\/\//i, "https://");
+const BASE_API = HTTPS_API.endsWith("/api") ? HTTPS_API : `${HTTPS_API}/api`;
+const MAX_RETRIES = 2;
+const RETRY_DELAY_MS = 900;
+
+function wait(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+function shouldRetry(error) {
+  const status = error?.response?.status;
+  if (!error?.response) return true;
+  return status === 429 || status >= 500;
+}
 
 const apiClient = axios.create({
-  baseURL,
+  baseURL: BASE_API,
+  withCredentials: true,
   timeout: 15000
 });
 
@@ -19,7 +34,18 @@ apiClient.interceptors.request.use((config) => {
 
 apiClient.interceptors.response.use(
   (response) => response,
-  (error) => {
+  async (error) => {
+    const requestConfig = error?.config;
+
+    if (requestConfig && shouldRetry(error)) {
+      requestConfig.__retryCount = requestConfig.__retryCount || 0;
+      if (requestConfig.__retryCount < MAX_RETRIES) {
+        requestConfig.__retryCount += 1;
+        await wait(RETRY_DELAY_MS * requestConfig.__retryCount);
+        return apiClient(requestConfig);
+      }
+    }
+
     const status = error?.response?.status;
     const requestUrl = String(error?.config?.url || "");
     const isLoginRequest = /\/auth\/login/.test(requestUrl);
@@ -35,7 +61,7 @@ apiClient.interceptors.response.use(
     }
 
     if (!error.response) {
-      error.friendlyMessage = `Cannot reach backend server. Check VITE_API_BASE_URL (${API_BASE_URL}).`;
+      error.friendlyMessage = `Cannot reach backend server. Check VITE_API_BASE_URL (${BASE_API}).`;
     } else if (status === 400) {
       error.friendlyMessage = error?.response?.data?.message || "Validation failed. Please check your input.";
     } else if (status === 403) {
