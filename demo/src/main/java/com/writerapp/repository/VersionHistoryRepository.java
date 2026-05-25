@@ -9,4 +9,6 @@ import com.writerapp.model.VersionHistory;
 public interface VersionHistoryRepository extends JpaRepository<VersionHistory, Long> {
 
     Page<VersionHistory> findByProjectIdOrderByCreatedAtDesc(Long projectId, Pageable pageable);
+
+    void deleteByProjectId(Long projectId);
 }

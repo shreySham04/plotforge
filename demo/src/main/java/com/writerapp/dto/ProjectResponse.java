@@ -27,5 +27,8 @@ public class ProjectResponse {
     private String linkedStoryTitle;
     private Long subjectId;
     private String subjectName;
+    private boolean isPublic;
+    private boolean isCompleted;
+    private LocalDateTime completedAt;
     private LocalDateTime createdAt;
 }

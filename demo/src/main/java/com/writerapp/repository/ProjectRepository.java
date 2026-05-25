@@ -10,6 +10,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import com.writerapp.model.Project;
+import com.writerapp.model.ProjectType;
 
 public interface ProjectRepository extends JpaRepository<Project, Long> {
 
@@ -43,4 +44,22 @@ public interface ProjectRepository extends JpaRepository<Project, Long> {
                 );
 
         Optional<Project> findByShareToken(String shareToken);
+
+        @Query("""
+                select p
+                from Project p
+                where p.isPublic = true
+                    and (:type is null or p.type = :type)
+                    and (:completed is null or p.isCompleted = :completed)
+                order by p.createdAt desc
+                """)
+        Page<Project> findPublicProjects(
+                @Param("type") ProjectType type,
+                @Param("completed") Boolean completed,
+                Pageable pageable
+        );
+
+        List<Project> findByRelatedProject(Project project);
+
+        List<Project> findByLinkedStory(Project project);
 }

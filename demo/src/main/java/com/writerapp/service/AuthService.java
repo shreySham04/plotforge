@@ -75,22 +75,25 @@ public class AuthService {
     }
 
     public AuthResponse login(LoginRequest request) {
+        String login = request.getUsername() == null ? "" : request.getUsername().trim();
+        String password = request.getPassword() == null ? "" : request.getPassword();
+
+        User user = userRepository.findByUsernameOrEmail(login, login)
+                .orElseThrow(() -> new ResponseStatusException(UNAUTHORIZED, "Invalid username or password"));
+
         try {
             authenticationManager.authenticate(
-                    new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword())
+                    new UsernamePasswordAuthenticationToken(user.getUsername(), password)
             );
         } catch (AuthenticationException ex) {
             throw new ResponseStatusException(UNAUTHORIZED, "Invalid username or password");
         }
 
-        User user = userRepository.findByUsername(request.getUsername())
-                .orElseThrow(() -> new ResponseStatusException(UNAUTHORIZED, "Invalid username or password"));
-
         UserDetails userDetails = org.springframework.security.core.userdetails.User.builder()
-                .username(user.getUsername())
-                .password(user.getPassword())
-                .authorities("ROLE_USER")
-                .build();
+            .username(user.getUsername())
+            .password(user.getPassword())
+            .authorities("ROLE_USER")
+            .build();
 
         String token = jwtService.generateToken(userDetails);
         return buildAuthResponse(user, token);

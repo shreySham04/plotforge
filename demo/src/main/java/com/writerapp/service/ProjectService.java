@@ -2,6 +2,7 @@ package com.writerapp.service;
 
 import java.io.ByteArrayOutputStream;
 import java.nio.charset.StandardCharsets;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
@@ -11,6 +12,8 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
+
+import lombok.RequiredArgsConstructor;
 
 import com.lowagie.text.Document;
 import com.lowagie.text.Font;
@@ -24,6 +27,7 @@ import com.writerapp.dto.ProjectCreateRequest;
 import com.writerapp.dto.ProjectRelationLinkRequest;
 import com.writerapp.dto.ProjectRelationsResponse;
 import com.writerapp.dto.ProjectResponse;
+import com.writerapp.dto.ProjectVisibilityRequest;
 import com.writerapp.dto.SharedProjectResponse;
 import com.writerapp.model.Collaborator;
 import com.writerapp.model.Content;
@@ -34,11 +38,11 @@ import com.writerapp.model.Subject;
 import com.writerapp.model.User;
 import com.writerapp.repository.CollaboratorRepository;
 import com.writerapp.repository.ContentRepository;
+import com.writerapp.repository.ContentVersionRepository;
 import com.writerapp.repository.ProjectRepository;
 import com.writerapp.repository.SubjectRepository;
 import com.writerapp.repository.UserRepository;
-
-import lombok.RequiredArgsConstructor;
+import com.writerapp.repository.VersionHistoryRepository;
 
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
@@ -50,10 +54,12 @@ public class ProjectService {
     private final ProjectRepository projectRepository;
     private final UserRepository userRepository;
     private final ContentRepository contentRepository;
+    private final ContentVersionRepository contentVersionRepository;
     private final CollaboratorRepository collaboratorRepository;
     private final SubjectRepository subjectRepository;
     private final CurrentUserService currentUserService;
     private final ProjectPermissionService projectPermissionService;
+    private final VersionHistoryRepository versionHistoryRepository;
 
     @Value("${app.frontend.base-url:http://localhost:5173}")
     private String frontendBaseUrl;
@@ -61,11 +67,27 @@ public class ProjectService {
     @Transactional(readOnly = true)
     public PageResponse<ProjectResponse> getProjectsForCurrentUser(int page, int size, Long subjectId) {
         User currentUser = currentUserService.getCurrentUser();
-        var result = projectRepository.findAllAccessibleByUserIdAndSubjectId(
-                currentUser.getId(),
-                subjectId,
-                PageRequest.of(page, size)
-        );
+        PageRequest pageable = PageRequest.of(page, size);
+
+        var result = subjectId == null
+            ? projectRepository.findAllAccessibleByUserId(currentUser.getId(), pageable)
+            : projectRepository.findAllAccessibleByUserIdAndSubjectId(currentUser.getId(), subjectId, pageable);
+
+        return PageResponse.<ProjectResponse>builder()
+            .items(result.getContent().stream().map(project -> mapProject(project, currentUser)).toList())
+            .page(result.getNumber())
+            .size(result.getSize())
+            .totalItems(result.getTotalElements())
+            .totalPages(result.getTotalPages())
+            .hasNext(result.hasNext())
+            .hasPrevious(result.hasPrevious())
+            .build();
+        }
+
+    @Transactional(readOnly = true)
+    public PageResponse<ProjectResponse> getPublicProjects(ProjectType type, Boolean completed, int page, int size) {
+        User currentUser = currentUserService.getCurrentUser();
+        var result = projectRepository.findPublicProjects(type, completed, PageRequest.of(page, size));
 
         return PageResponse.<ProjectResponse>builder()
                 .items(result.getContent().stream().map(project -> mapProject(project, currentUser)).toList())
@@ -121,6 +143,25 @@ public class ProjectService {
         applyProjectSubject(project, request.getSubjectId());
         applyProjectRelation(project, request.getRelationType(), request.getRelatedProjectId(), request.getExternalMediaId(), request.getExternalMediaTitle());
         applyStoryLink(project, request.getLinkedStoryId());
+
+        Project saved = projectRepository.save(project);
+        return mapProject(saved, currentUser);
+    }
+
+    @Transactional
+    public ProjectResponse updateProjectVisibility(Long projectId, ProjectVisibilityRequest request) {
+        User currentUser = currentUserService.getCurrentUser();
+        Project project = projectPermissionService.requireProject(projectId);
+        projectPermissionService.requireOwner(project, currentUser);
+
+        if (request.getIsPublic() != null) {
+            project.setPublic(request.getIsPublic());
+        }
+
+        if (request.getIsCompleted() != null) {
+            project.setCompleted(request.getIsCompleted());
+            project.setCompletedAt(request.getIsCompleted() ? LocalDateTime.now() : null);
+        }
 
         Project saved = projectRepository.save(project);
         return mapProject(saved, currentUser);
@@ -191,6 +232,26 @@ public class ProjectService {
         User currentUser = currentUserService.getCurrentUser();
         Project project = projectPermissionService.requireProject(projectId);
         projectPermissionService.requireOwner(project, currentUser);
+
+        contentVersionRepository.deleteByProjectId(projectId);
+        versionHistoryRepository.deleteByProjectId(projectId);
+
+        List<Project> referencingRelations = projectRepository.findByRelatedProject(project);
+        for (Project related : referencingRelations) {
+            related.setRelatedProject(null);
+            related.setRelationType(ProjectRelationType.NONE);
+        }
+
+        List<Project> linkedStories = projectRepository.findByLinkedStory(project);
+        for (Project linked : linkedStories) {
+            linked.setLinkedStory(null);
+        }
+
+        if (!referencingRelations.isEmpty() || !linkedStories.isEmpty()) {
+            projectRepository.saveAll(referencingRelations);
+            projectRepository.saveAll(linkedStories);
+        }
+
         projectRepository.delete(Objects.requireNonNull(project));
     }
 
@@ -297,6 +358,9 @@ public class ProjectService {
                         .ownerUsername(project.getOwner().getUsername())
                         .accessRole("VIEWER")
                         .canEdit(false)
+                .isPublic(project.isPublic())
+                .isCompleted(project.isCompleted())
+                .completedAt(project.getCompletedAt())
                         .createdAt(project.getCreatedAt())
                         .build())
                 .content(content)
@@ -381,6 +445,9 @@ public class ProjectService {
                 .linkedStoryTitle(linkedStory == null ? null : linkedStory.getTitle())
                 .subjectId(subject == null ? null : subject.getId())
                 .subjectName(subject == null ? null : subject.getName())
+                .isPublic(project.isPublic())
+                .isCompleted(project.isCompleted())
+                .completedAt(project.getCompletedAt())
                 .createdAt(project.getCreatedAt())
                 .build();
     }

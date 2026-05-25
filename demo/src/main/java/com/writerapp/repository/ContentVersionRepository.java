@@ -9,4 +9,6 @@ import com.writerapp.model.ContentVersion;
 public interface ContentVersionRepository extends JpaRepository<ContentVersion, Long> {
 
     List<ContentVersion> findByProjectIdOrderByEditedAtDesc(Long projectId);
+
+    void deleteByProjectId(Long projectId);
 }

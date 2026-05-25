@@ -6,9 +6,11 @@ import {
   deleteProject,
   exportProjectPdf,
   exportProjectTxt,
+  getPublicProjects,
   getProjects,
   getShareLink,
-  updateProject
+  updateProject,
+  updateProjectVisibility
 } from "../services/projectService";
 import { searchMedia } from "../services/fanFutureService";
 import { createSubject, getSubjects } from "../services/subjectService";
@@ -52,6 +54,8 @@ export default function DashboardPage({ mode = {} }) {
   const { user } = useAuth();
   const onlyType = mode.onlyType || null;
   const heading = mode.heading || "Create Project";
+  const description = mode.description || "";
+  const showPublicLists = Boolean(mode.showPublicLists);
   const [projects, setProjects] = useState([]);
   const [allProjects, setAllProjects] = useState([]);
   const [subjects, setSubjects] = useState([]);
@@ -66,7 +70,8 @@ export default function DashboardPage({ mode = {} }) {
     genreSecondary: "",
     externalMediaId: "",
     externalMediaTitle: "",
-    linkedStoryId: ""
+    linkedStoryId: "",
+    isPublic: false
   });
   const [isConnectedToMedia, setIsConnectedToMedia] = useState(false);
   const [tmdbQuery, setTmdbQuery] = useState("");
@@ -78,6 +83,9 @@ export default function DashboardPage({ mode = {} }) {
   const [genreEffect, setGenreEffect] = useState(null);
   const [effectParticles, setEffectParticles] = useState([]);
   const effectTimeoutRef = useRef(null);
+  const [publicCompleted, setPublicCompleted] = useState([]);
+  const [publicInProgress, setPublicInProgress] = useState([]);
+  const [publicLoading, setPublicLoading] = useState(false);
 
   function pickGenreEffect(genre) {
     const normalized = (genre || "").toLowerCase();
@@ -168,6 +176,28 @@ export default function DashboardPage({ mode = {} }) {
   }, [subjectFilter]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
+    if (!showPublicLists) return;
+    async function loadPublic() {
+      setPublicLoading(true);
+      try {
+        const [completed, inProgress] = await Promise.all([
+          getPublicProjects({ type: onlyType || undefined, completed: true, page: 0, size: 6 }),
+          getPublicProjects({ type: onlyType || undefined, completed: false, page: 0, size: 6 })
+        ]);
+        setPublicCompleted(completed.items || []);
+        setPublicInProgress(inProgress.items || []);
+      } catch {
+        setPublicCompleted([]);
+        setPublicInProgress([]);
+      } finally {
+        setPublicLoading(false);
+      }
+    }
+
+    loadPublic();
+  }, [showPublicLists, onlyType]);
+
+  useEffect(() => {
     return () => {
       if (effectTimeoutRef.current) {
         clearTimeout(effectTimeoutRef.current);
@@ -184,7 +214,8 @@ export default function DashboardPage({ mode = {} }) {
       genreSecondary: "",
       externalMediaId: "",
       externalMediaTitle: "",
-      linkedStoryId: ""
+      linkedStoryId: "",
+      isPublic: false
     });
     setTmdbQuery("");
     setTmdbResults([]);
@@ -207,7 +238,8 @@ export default function DashboardPage({ mode = {} }) {
       genreSecondary: sourceGenres[1] || "",
       externalMediaId: project.externalMediaId ? String(project.externalMediaId) : "",
       externalMediaTitle: project.externalMediaTitle || "",
-      linkedStoryId: project.linkedStoryId ? String(project.linkedStoryId) : ""
+      linkedStoryId: project.linkedStoryId ? String(project.linkedStoryId) : "",
+      isPublic: Boolean(project.isPublic)
     });
 
     setIsConnectedToMedia(Boolean((project.externalMediaId || project.externalMediaTitle) && project.type === "STORY"));
@@ -304,8 +336,14 @@ export default function DashboardPage({ mode = {} }) {
 
       if (editingProject) {
         await updateProject(editingProject.id, payload);
+        if (editingProject.isPublic !== form.isPublic) {
+          await updateProjectVisibility(editingProject.id, { isPublic: form.isPublic });
+        }
       } else {
-        await createProject(payload);
+        const created = await createProject(payload);
+        if (form.isPublic && created?.id) {
+          await updateProjectVisibility(created.id, { isPublic: true });
+        }
         triggerGenreEffect(form.genrePrimary || form.genreSecondary, projectType);
       }
       resetForm();
@@ -317,9 +355,15 @@ export default function DashboardPage({ mode = {} }) {
   }
 
   async function onDelete(id) {
-    await deleteProject(id);
-    await loadReferenceData();
-    await loadProjects(page);
+    if (!window.confirm("Delete this project? This cannot be undone.")) return;
+    setError("");
+    try {
+      await deleteProject(id);
+      await loadReferenceData();
+      await loadProjects(page);
+    } catch (err) {
+      setError(extractApiError(err, "Could not delete project"));
+    }
   }
 
   async function onShare(id) {
@@ -366,12 +410,15 @@ export default function DashboardPage({ mode = {} }) {
       )}
       <Navbar />
       <main className="mx-auto max-w-6xl px-4 py-6">
-        <section className="mb-6 rounded-xl border border-slate-700/70 bg-slate-900/70 p-4">
-          <p className="text-sm text-slate-300">Logged in as</p>
-          <p className="text-xl font-bold text-blue-300">{user?.username || "User"}</p>
-        </section>
+        {!onlyType && (
+          <section className="mb-6 rounded-xl border border-slate-700/70 bg-slate-900/70 p-4">
+            <p className="text-sm text-slate-300">Logged in as</p>
+            <p className="text-xl font-bold text-blue-300">{user?.username || "User"}</p>
+          </section>
+        )}
         <section className="card mb-6">
           <h2 className="mb-3 text-xl font-semibold">{heading}</h2>
+          {description && <p className="mb-4 text-sm text-slate-300">{description}</p>}
           <form className="space-y-3" onSubmit={onCreate}>
             <div className="flex flex-wrap gap-3">
               <input
@@ -414,6 +461,15 @@ export default function DashboardPage({ mode = {} }) {
                 ))}
               </select>
             </div>
+
+            <label className="flex items-center justify-between rounded-lg border border-slate-700/70 bg-slate-900/60 px-3 py-2 text-sm text-slate-200">
+              <span>Make project public</span>
+              <input
+                type="checkbox"
+                checked={form.isPublic}
+                onChange={(e) => setForm({ ...form, isPublic: e.target.checked })}
+              />
+            </label>
 
             <p className="text-xs text-slate-400">
               Select up to 2 genres for your story.
@@ -564,6 +620,59 @@ export default function DashboardPage({ mode = {} }) {
             Next
           </button>
         </section>
+
+        {showPublicLists && (
+          <section className="mt-10 space-y-6">
+            <div className="flex items-end justify-between">
+              <div>
+                <h2 className="text-2xl font-semibold text-slate-100">Public {onlyType ? onlyType.toLowerCase() : "projects"}</h2>
+                <p className="text-sm text-slate-400">Discover what the community is building right now.</p>
+              </div>
+            </div>
+
+            <div>
+              <h3 className="mb-3 text-lg font-semibold text-slate-200">Completed</h3>
+              <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+                {publicLoading && <div className="card col-span-full text-center text-slate-300">Loading public projects...</div>}
+                {!publicLoading && publicCompleted.length === 0 && (
+                  <div className="card col-span-full text-center text-slate-300">No completed public projects yet.</div>
+                )}
+                {publicCompleted.map((project) => (
+                  <ProjectCard
+                    key={`public-completed-${project.id}`}
+                    project={project}
+                    onEdit={() => startEdit(project)}
+                    onDelete={() => onDelete(project.id)}
+                    onShare={() => onShare(project.id)}
+                    onExportPdf={() => onExport(project.id)}
+                    onExportTxt={() => onExportTxt(project.id)}
+                  />
+                ))}
+              </div>
+            </div>
+
+            <div>
+              <h3 className="mb-3 text-lg font-semibold text-slate-200">In progress</h3>
+              <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+                {publicLoading && <div className="card col-span-full text-center text-slate-300">Loading public projects...</div>}
+                {!publicLoading && publicInProgress.length === 0 && (
+                  <div className="card col-span-full text-center text-slate-300">No in-progress public projects yet.</div>
+                )}
+                {publicInProgress.map((project) => (
+                  <ProjectCard
+                    key={`public-progress-${project.id}`}
+                    project={project}
+                    onEdit={() => startEdit(project)}
+                    onDelete={() => onDelete(project.id)}
+                    onShare={() => onShare(project.id)}
+                    onExportPdf={() => onExport(project.id)}
+                    onExportTxt={() => onExportTxt(project.id)}
+                  />
+                ))}
+              </div>
+            </div>
+          </section>
+        )}
       </main>
     </div>
   );

@@ -26,8 +26,10 @@ import com.writerapp.dto.ProjectCreateRequest;
 import com.writerapp.dto.ProjectRelationLinkRequest;
 import com.writerapp.dto.ProjectRelationsResponse;
 import com.writerapp.dto.ProjectResponse;
+import com.writerapp.dto.ProjectVisibilityRequest;
 import com.writerapp.dto.VersionHistoryResponse;
 import com.writerapp.dto.ContentResponse;
+import com.writerapp.model.ProjectType;
 import com.writerapp.service.ProjectService;
 import com.writerapp.service.VersionHistoryService;
 
@@ -52,6 +54,16 @@ public class ProjectController {
         return ResponseEntity.ok(projectService.getProjectsForCurrentUser(page, size, subjectId));
     }
 
+    @GetMapping("/public")
+    public ResponseEntity<PageResponse<ProjectResponse>> getPublicProjects(
+            @RequestParam(required = false) ProjectType type,
+            @RequestParam(required = false) Boolean completed,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "12") int size
+    ) {
+        return ResponseEntity.ok(projectService.getPublicProjects(type, completed, page, size));
+    }
+
     @PostMapping
     public ResponseEntity<ProjectResponse> createProject(@Valid @RequestBody ProjectCreateRequest request) {
         return ResponseEntity.status(HttpStatus.CREATED).body(projectService.createProject(request));
@@ -63,6 +75,14 @@ public class ProjectController {
             @Valid @RequestBody ProjectCreateRequest request
     ) {
         return ResponseEntity.ok(projectService.updateProject(id, request));
+    }
+
+    @PutMapping("/{id}/visibility")
+    public ResponseEntity<ProjectResponse> updateProjectVisibility(
+            @PathVariable Long id,
+            @RequestBody ProjectVisibilityRequest request
+    ) {
+        return ResponseEntity.ok(projectService.updateProjectVisibility(id, request));
     }
 
     @GetMapping("/{id}")

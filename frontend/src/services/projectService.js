@@ -18,6 +18,14 @@ export async function getProjects(page = 0, size = 10, subjectId) {
   return data;
 }
 
+export async function getPublicProjects({ type, completed, page = 0, size = 12 } = {}) {
+  const params = { page, size };
+  if (type) params.type = type;
+  if (completed !== undefined && completed !== null) params.completed = completed;
+  const { data } = await api.get("/projects/public", { params });
+  return data;
+}
+
 export async function createProject(payload) {
   const { data } = await api.post("/projects", payload);
   return data;
@@ -25,6 +33,11 @@ export async function createProject(payload) {
 
 export async function updateProject(id, payload) {
   const { data } = await api.put(`/projects/${id}`, payload);
+  return data;
+}
+
+export async function updateProjectVisibility(id, payload) {
+  const { data } = await api.put(`/projects/${id}/visibility`, payload);
   return data;
 }
 

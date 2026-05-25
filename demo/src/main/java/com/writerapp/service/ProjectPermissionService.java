@@ -41,6 +41,9 @@ public class ProjectPermissionService {
                 .orElse(null);
 
         if (collaborator == null) {
+            if (project.isPublic()) {
+                return "VIEWER";
+            }
             throw new ResponseStatusException(FORBIDDEN, "You do not have access to this project");
         }
 

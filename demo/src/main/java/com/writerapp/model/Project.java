@@ -86,6 +86,17 @@ public class Project {
     @Column(name = "share_token", length = 64, unique = true)
     private String shareToken;
 
+    @Builder.Default
+    @Column(name = "is_public", nullable = false)
+    private boolean isPublic = false;
+
+    @Builder.Default
+    @Column(name = "is_completed", nullable = false)
+    private boolean isCompleted = false;
+
+    @Column(name = "completed_at")
+    private LocalDateTime completedAt;
+
     @OneToMany(mappedBy = "project", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
     private List<Content> contentSections = new ArrayList<>();

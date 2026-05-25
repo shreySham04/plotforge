@@ -19,7 +19,8 @@ import {
   getProjectVersionHistory,
   inviteCollaborator,
   removeCollaborator,
-  restoreProjectVersion
+  restoreProjectVersion,
+  updateProjectVisibility
 } from "../services/projectService";
 import { publishEdit, publishTyping } from "../services/wsService";
 import { extractApiError } from "../utils/errors";
@@ -52,11 +53,13 @@ export default function ProjectEditorPage() {
   const [typingUser, setTypingUser] = useState("");
   const typingTimeoutRef = useRef(null);
   const [dirty, setDirty] = useState(false);
+  const [visibilitySaving, setVisibilitySaving] = useState(false);
 
   const [invite, setInvite] = useState({ username: "", email: "", role: "EDITOR" });
 
   const canEdit = Boolean(project?.canEdit);
   const canManageCollaborators = project?.accessRole === "OWNER";
+  const canManageVisibility = project?.accessRole === "OWNER";
 
   const onSocketMessage = useCallback(
     (msg) => {
@@ -228,6 +231,28 @@ export default function ProjectEditorPage() {
     await loadAll();
   }
 
+  async function onTogglePublic() {
+    if (!canManageVisibility || !project) return;
+    setVisibilitySaving(true);
+    try {
+      const updated = await updateProjectVisibility(projectId, { isPublic: !project.isPublic });
+      setProject(updated);
+    } finally {
+      setVisibilitySaving(false);
+    }
+  }
+
+  async function onToggleCompleted() {
+    if (!canManageVisibility || !project) return;
+    setVisibilitySaving(true);
+    try {
+      const updated = await updateProjectVisibility(projectId, { isCompleted: !project.isCompleted });
+      setProject(updated);
+    } finally {
+      setVisibilitySaving(false);
+    }
+  }
+
   const editorProps = useMemo(
     () => ({
       sectionNumber,
@@ -278,6 +303,14 @@ export default function ProjectEditorPage() {
               <RelationBadge relationType={project?.relationType} />
             </div>
             <p className="mt-1 text-xs text-slate-400">Role: {project?.accessRole}</p>
+            <div className="mt-2 flex flex-wrap items-center gap-2 text-xs">
+              <span className="rounded-full border border-slate-700/70 px-2 py-1 text-slate-300">
+                {project?.isPublic ? "Public" : "Private"}
+              </span>
+              <span className="rounded-full border border-slate-700/70 px-2 py-1 text-slate-300">
+                {project?.isCompleted ? "Completed" : "In progress"}
+              </span>
+            </div>
             {project?.relationType && project.relationType !== "NONE" && (
               <p className="mt-2 text-xs text-slate-300">
                 {project.relationType === "SEQUEL" ? "Sequel to" : project.relationType === "PREQUEL" ? "Prequel to" : "Spinoff of"}: {project.relatedProjectTitle || project.externalMediaTitle || (project.externalMediaId ? `TMDB #${project.externalMediaId}` : "-")}
@@ -288,6 +321,30 @@ export default function ProjectEditorPage() {
                 Based on Story: {project.linkedStoryTitle}
               </p>
             )}
+          </div>
+
+          <div className="card">
+            <h3 className="mb-2 font-semibold">Visibility</h3>
+            <p className="text-xs text-slate-400">Public projects are visible to all logged-in users.</p>
+            <div className="mt-3 flex flex-col gap-2">
+              <button
+                className="rounded-lg border border-slate-700/70 bg-slate-900/70 px-3 py-2 text-sm text-slate-200"
+                onClick={onTogglePublic}
+                disabled={!canManageVisibility || visibilitySaving}
+              >
+                {project?.isPublic ? "Make Private" : "Make Public"}
+              </button>
+              <button
+                className="rounded-lg border border-slate-700/70 bg-slate-900/70 px-3 py-2 text-sm text-slate-200"
+                onClick={onToggleCompleted}
+                disabled={!canManageVisibility || visibilitySaving}
+              >
+                {project?.isCompleted ? "Mark In Progress" : "Mark Completed"}
+              </button>
+              {!canManageVisibility && (
+                <p className="text-xs text-slate-400">Only the owner can change visibility.</p>
+              )}
+            </div>
           </div>
 
           <div className="card">
