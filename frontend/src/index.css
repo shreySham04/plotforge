@@ -31,7 +31,7 @@
   --card-bg: rgba(255, 255, 255, 0.92);
   --card-border: #cbd5e1;
   --input-bg: #ffffff;
-  --input-border: #94a3b8;
+  --input-border: #64748b;
   --input-text: #0f172a;
   --button-bg: #1d4ed8;
   --button-bg-hover: #1e40af;
@@ -78,6 +78,15 @@ body::before {
 
 .input:focus {
   border-color: #3b82f6;
+}
+
+:root.theme-light .input {
+  box-shadow: 0 0 0 1px rgba(148, 163, 184, 0.45);
+}
+
+:root.theme-light .input:focus {
+  border-color: #2563eb;
+  box-shadow: 0 0 0 1px rgba(37, 99, 235, 0.35);
 }
 
 .btn {
@@ -344,6 +353,14 @@ body::before {
   padding: 0.75rem 0.9rem;
   border-radius: 14px;
   background: rgba(12, 16, 32, 0.8);
+}
+
+:root.theme-light .login-panel {
+  background: rgba(255, 255, 255, 0.96);
+}
+
+:root.theme-light .login-panel .input {
+  background: #ffffff;
 }
 
 .login-panel .btn {
