@@ -7,6 +7,7 @@ export default function RegisterPage() {
   const navigate = useNavigate();
   const { register, token } = useAuth();
   const [form, setForm] = useState({ username: "", email: "", password: "" });
+  const [fieldErrors, setFieldErrors] = useState({});
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [loading, setLoading] = useState(false);
@@ -30,6 +31,12 @@ export default function RegisterPage() {
   async function onSubmit(e) {
     e.preventDefault();
     if (loading) return;
+
+    const nextErrors = validateForm(form);
+    if (Object.keys(nextErrors).length > 0) {
+      setFieldErrors(nextErrors);
+      return;
+    }
 
     setError("");
     setSuccess("");
@@ -56,6 +63,35 @@ export default function RegisterPage() {
   function handleSlideAdvance(event) {
     if (event?.target?.closest(".login-panel")) return;
     setActiveSlide((prev) => (prev + 1) % totalSlides);
+  }
+
+  function validateForm(values) {
+    const nextErrors = {};
+    const username = values.username.trim();
+    const email = values.email.trim();
+    const password = values.password;
+
+    if (username.length < 3) {
+      nextErrors.username = "Username must be at least 3 characters.";
+    } else if (username.length > 50) {
+      nextErrors.username = "Username must be 50 characters or less.";
+    }
+
+    if (!email) {
+      nextErrors.email = "Email is required.";
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      nextErrors.email = "Enter a valid email address.";
+    }
+
+    if (!password) {
+      nextErrors.password = "Password is required.";
+    } else if (password.length < 6) {
+      nextErrors.password = "Password must be at least 6 characters.";
+    } else if (password.length > 100) {
+      nextErrors.password = "Password must be 100 characters or less.";
+    }
+
+    return nextErrors;
   }
 
   return (
@@ -170,15 +206,63 @@ export default function RegisterPage() {
                 Start your PlotForge profile in under a minute.
               </p>
             </div>
-            <input className="input" placeholder="Username" value={form.username} onChange={(e) => setForm({ ...form, username: e.target.value })} required />
-            <input className="input" type="email" placeholder="Email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} required />
+            <input
+              className="input"
+              placeholder="Username"
+              value={form.username}
+              onChange={(e) => {
+                setForm({ ...form, username: e.target.value });
+                if (fieldErrors.username) {
+                  setFieldErrors({ ...fieldErrors, username: "" });
+                }
+              }}
+              onBlur={() => {
+                const nextErrors = validateForm(form);
+                if (nextErrors.username !== fieldErrors.username) {
+                  setFieldErrors({ ...fieldErrors, username: nextErrors.username || "" });
+                }
+              }}
+              required
+            />
+            {fieldErrors.username ? <p className="text-sm text-amber-300">{fieldErrors.username}</p> : null}
+            <input
+              className="input"
+              type="email"
+              placeholder="Email"
+              value={form.email}
+              onChange={(e) => {
+                setForm({ ...form, email: e.target.value });
+                if (fieldErrors.email) {
+                  setFieldErrors({ ...fieldErrors, email: "" });
+                }
+              }}
+              onBlur={() => {
+                const nextErrors = validateForm(form);
+                if (nextErrors.email !== fieldErrors.email) {
+                  setFieldErrors({ ...fieldErrors, email: nextErrors.email || "" });
+                }
+              }}
+              required
+            />
+            {fieldErrors.email ? <p className="text-sm text-amber-300">{fieldErrors.email}</p> : null}
             <div className="relative">
               <input
                 className="input pr-16"
                 type={showPassword ? "text" : "password"}
                 placeholder="Password"
                 value={form.password}
-                onChange={(e) => setForm({ ...form, password: e.target.value })}
+                onChange={(e) => {
+                  setForm({ ...form, password: e.target.value });
+                  if (fieldErrors.password) {
+                    setFieldErrors({ ...fieldErrors, password: "" });
+                  }
+                }}
+                onBlur={() => {
+                  const nextErrors = validateForm(form);
+                  if (nextErrors.password !== fieldErrors.password) {
+                    setFieldErrors({ ...fieldErrors, password: nextErrors.password || "" });
+                  }
+                }}
                 required
               />
               <button
@@ -189,6 +273,7 @@ export default function RegisterPage() {
                 {showPassword ? "Hide" : "Show"}
               </button>
             </div>
+            {fieldErrors.password ? <p className="text-sm text-amber-300">{fieldErrors.password}</p> : null}
             {error && <p className="text-sm text-rose-400">{error}</p>}
             {success && <p className="text-sm text-emerald-400">{success}</p>}
             <button className="btn w-full" type="submit" disabled={loading}>
