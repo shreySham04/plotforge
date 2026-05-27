@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { Navigate, Route, Routes } from "react-router-dom";
 import HomePage from "./pages/HomePage";
 import LoginPage from "./pages/LoginPage";
@@ -18,8 +19,13 @@ import ReviewsPage from "./pages/ReviewsPage";
 import About from "./pages/About";
 import ProtectedRoute from "./components/ProtectedRoute";
 import Footer from "./components/Footer";
+import { warmBackend } from "./services/healthService";
 
 export default function App() {
+  useEffect(() => {
+    warmBackend();
+  }, []);
+
   return (
     <div className="min-h-screen bg-base text-slate-100">
       <Routes>
