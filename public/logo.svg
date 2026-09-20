@@ -1,0 +1,481 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 800" width="100%" height="100%">
+  <defs>
+    <!-- Parchment & Vintage Gradients -->
+    <radialGradient id="parchmentBg" cx="50%" cy="45%" r="65%">
+      <stop offset="0%" stop-color="#fff8eb" />
+      <stop offset="60%" stop-color="#f5e6cb" />
+      <stop offset="85%" stop-color="#ebd5b0" />
+      <stop offset="100%" stop-color="#d6b98d" />
+    </radialGradient>
+
+    <!-- Warm Vignette / Aged Edge Shadow -->
+    <radialGradient id="edgeVignette" cx="50%" cy="50%" r="50%">
+      <stop offset="70%" stop-color="#000000" stop-opacity="0" />
+      <stop offset="95%" stop-color="#7c4a1e" stop-opacity="0.25" />
+      <stop offset="100%" stop-color="#451a03" stop-opacity="0.5" />
+    </radialGradient>
+
+    <linearGradient id="goldFiligree" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#b45309" />
+      <stop offset="50%" stop-color="#d97706" />
+      <stop offset="100%" stop-color="#78350f" />
+    </linearGradient>
+
+    <linearGradient id="treeBark" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#155e75" />
+      <stop offset="50%" stop-color="#0f766e" />
+      <stop offset="100%" stop-color="#134e4a" />
+    </linearGradient>
+
+    <linearGradient id="leafGrad" x1="0%" y1="100%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#059669" />
+      <stop offset="100%" stop-color="#34d399" />
+    </linearGradient>
+
+    <linearGradient id="goldPF" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#fef08a" />
+      <stop offset="35%" stop-color="#eab308" />
+      <stop offset="70%" stop-color="#ca8a04" />
+      <stop offset="100%" stop-color="#854d0e" />
+    </linearGradient>
+
+    <linearGradient id="nibMetallic" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#fef9c3" />
+      <stop offset="40%" stop-color="#facc15" />
+      <stop offset="80%" stop-color="#ca8a04" />
+      <stop offset="100%" stop-color="#713f12" />
+    </linearGradient>
+
+    <linearGradient id="anvilGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#64748b" />
+      <stop offset="60%" stop-color="#334155" />
+      <stop offset="100%" stop-color="#1e293b" />
+    </linearGradient>
+
+    <filter id="parchmentTexture" x="0" y="0" width="100%" height="100%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.04" numOctaves="4" result="noise" />
+      <feColorMatrix type="matrix" values="1 0 0 0 0.95  0 1 0 0 0.88  0 0 1 0 0.76  0 0 0 0.12 0" />
+      <feBlend mode="multiply" in="SourceGraphic" />
+    </filter>
+
+    <filter id="softGlow">
+      <feGaussianBlur stdDeviation="3" result="blur" />
+      <feComposite in="SourceGraphic" in2="blur" operator="over" />
+    </filter>
+  </defs>
+
+  <!-- Parchment Canvas Background -->
+  <rect x="0" y="0" width="800" height="800" fill="url(#parchmentBg)" />
+  <rect x="0" y="0" width="800" height="800" fill="url(#edgeVignette)" opacity="0.3" />
+
+  <!-- Four Ornate Victorian / Baroque Corner Filigrees -->
+  <!-- Top-Left Corner -->
+  <g transform="translate(35, 35)" stroke="url(#goldFiligree)" stroke-width="2.5" fill="none">
+    <path d="M 0 65 C 25 60, 45 40, 50 15 C 52 5, 60 5, 65 0" />
+    <path d="M 15 50 C 30 45, 45 30, 50 15" />
+    <path d="M 5 35 C 15 30, 30 15, 35 5" />
+    <path d="M 2 8 C 8 2, 20 2, 25 15 C 28 25, 20 32, 10 28 C 4 25, 2 15, 8 10 Z" fill="#b45309" fill-opacity="0.3" />
+  </g>
+  <!-- Top-Right Corner -->
+  <g transform="translate(765, 35) scale(-1, 1)" stroke="url(#goldFiligree)" stroke-width="2.5" fill="none">
+    <path d="M 0 65 C 25 60, 45 40, 50 15 C 52 5, 60 5, 65 0" />
+    <path d="M 15 50 C 30 45, 45 30, 50 15" />
+    <path d="M 5 35 C 15 30, 30 15, 35 5" />
+    <path d="M 2 8 C 8 2, 20 2, 25 15 C 28 25, 20 32, 10 28 C 4 25, 2 15, 8 10 Z" fill="#b45309" fill-opacity="0.3" />
+  </g>
+  <!-- Bottom-Left Corner -->
+  <g transform="translate(35, 765) scale(1, -1)" stroke="url(#goldFiligree)" stroke-width="2.5" fill="none">
+    <path d="M 0 65 C 25 60, 45 40, 50 15 C 52 5, 60 5, 65 0" />
+    <path d="M 15 50 C 30 45, 45 30, 50 15" />
+    <path d="M 5 35 C 15 30, 30 15, 35 5" />
+    <path d="M 2 8 C 8 2, 20 2, 25 15 C 28 25, 20 32, 10 28 C 4 25, 2 15, 8 10 Z" fill="#b45309" fill-opacity="0.3" />
+  </g>
+  <!-- Bottom-Right Corner -->
+  <g transform="translate(765, 765) scale(-1, -1)" stroke="url(#goldFiligree)" stroke-width="2.5" fill="none">
+    <path d="M 0 65 C 25 60, 45 40, 50 15 C 52 5, 60 5, 65 0" />
+    <path d="M 15 50 C 30 45, 45 30, 50 15" />
+    <path d="M 5 35 C 15 30, 30 15, 35 5" />
+    <path d="M 2 8 C 8 2, 20 2, 25 15 C 28 25, 20 32, 10 28 C 4 25, 2 15, 8 10 Z" fill="#b45309" fill-opacity="0.3" />
+  </g>
+
+  <!-- Ink Smudges & Vintage Stains -->
+  <g opacity="0.25" fill="#593214">
+    <ellipse cx="60" cy="590" rx="14" ry="18" />
+    <circle cx="90" cy="610" r="6" />
+    <circle cx="110" cy="625" r="4" />
+    <circle cx="710" cy="660" r="10" />
+    <circle cx="730" cy="680" r="5" />
+    <circle cx="150" cy="180" r="8" />
+  </g>
+
+  <!-- Colorful story sparkles floating in air -->
+  <g>
+    <rect x="250" y="110" width="8" height="12" rx="1" fill="#ec4899" transform="rotate(25 250 110)" />
+    <rect x="360" y="115" width="9" height="13" rx="1" fill="#3b82f6" transform="rotate(-15 360 115)" />
+    <rect x="475" y="118" width="8" height="11" rx="1" fill="#eab308" transform="rotate(35 475 118)" />
+    <rect x="180" y="240" width="8" height="10" rx="1" fill="#10b981" transform="rotate(45 180 240)" />
+    <rect x="635" y="380" width="7" height="10" rx="1" fill="#8b5cf6" transform="rotate(15 635 380)" />
+    <rect x="280" y="420" width="12" height="15" rx="1.5" fill="#38bdf8" transform="rotate(-30 280 420)" stroke="#1e293b" stroke-width="0.8" />
+    <circle cx="230" cy="335" r="3.5" fill="#f43f5e" />
+    <circle cx="580" cy="210" r="4" fill="#a855f7" />
+    <circle cx="290" cy="350" r="3" fill="#10b981" />
+    <circle cx="550" cy="360" r="3.5" fill="#ec4899" />
+  </g>
+
+  <!-- ========================================== -->
+  <!-- 1. CENTRAL STORYTELLING TREE & BRANCHES    -->
+  <!-- ========================================== -->
+  <g id="storyTree">
+    <!-- Twisted tree trunk emerging from fountain pen -->
+    <g fill="none" stroke="url(#treeBark)" stroke-linecap="round">
+      <!-- Main trunk spirals -->
+      <path d="M 388 430 C 385 360, 360 320, 335 280 C 305 240, 260 215, 275 160 C 285 125, 335 130, 345 165 C 355 200, 320 230, 305 240" stroke-width="9" />
+      <path d="M 412 430 C 415 360, 440 320, 465 280 C 495 240, 540 215, 525 160 C 515 125, 465 130, 455 165 C 445 200, 480 230, 495 240" stroke-width="9" />
+      
+      <!-- Central heart spiral branch -->
+      <path d="M 390 310 C 365 240, 330 180, 380 120 C 405 90, 435 110, 420 145 C 405 180, 375 190, 365 180" stroke-width="7" />
+      <path d="M 410 310 C 435 240, 470 180, 420 120 C 395 90, 365 110, 380 145 C 395 180, 425 190, 435 180" stroke-width="7" />
+
+      <!-- Side lower branching swirls -->
+      <path d="M 355 330 C 300 330, 260 300, 280 260 C 295 230, 330 250, 315 280" stroke-width="6" />
+      <path d="M 445 330 C 500 330, 540 300, 520 260 C 505 230, 470 250, 485 280" stroke-width="6" />
+      <path d="M 450 360 C 510 380, 560 340, 545 295 C 535 270, 500 280, 510 310" stroke-width="5.5" />
+    </g>
+
+    <!-- Fresh Green Leaves Sprouting all along branches -->
+    <g fill="url(#leafGrad)" stroke="#065f46" stroke-width="1.2">
+      <!-- Top cluster -->
+      <path d="M 395 105 C 385 85, 385 70, 395 78 C 405 85, 405 100, 395 105 Z" />
+      <path d="M 415 110 C 430 95, 440 95, 435 108 C 430 120, 415 120, 415 110 Z" />
+      <path d="M 380 115 C 365 100, 355 100, 360 115 C 365 125, 380 125, 380 115 Z" />
+      <path d="M 470 125 C 485 110, 495 115, 490 130 C 485 140, 470 135, 470 125 Z" />
+      <path d="M 330 125 C 315 110, 305 115, 310 130 C 315 140, 330 135, 330 125 Z" />
+      
+      <!-- Middle branch clusters -->
+      <path d="M 260 185 C 240 175, 240 160, 255 170 C 265 178, 270 190, 260 185 Z" />
+      <path d="M 285 195 C 275 180, 280 170, 292 180 C 300 190, 295 200, 285 195 Z" />
+      <path d="M 540 185 C 560 175, 560 160, 545 170 C 535 178, 530 190, 540 185 Z" />
+      <path d="M 515 195 C 525 180, 520 170, 508 180 C 500 190, 505 200, 515 195 Z" />
+      <path d="M 505 235 C 520 220, 530 225, 525 240 C 520 250, 505 245, 505 235 Z" />
+      <path d="M 295 235 C 280 220, 270 225, 275 240 C 280 250, 295 245, 295 235 Z" />
+    </g>
+
+    <!-- Miniature Story Books Growing on Tree Branches -->
+    <g stroke="#332115" stroke-width="1.2">
+      <!-- Book 1 (Top Left) -->
+      <g transform="translate(305, 155) rotate(-20) scale(0.9)">
+        <path d="M 0 15 L 20 0 L 40 15 L 40 32 L 20 18 L 0 32 Z" fill="#38bdf8" />
+        <path d="M 20 0 L 20 18" stroke="#1e293b" stroke-width="1.5" />
+        <path d="M 3 15 L 18 4 L 18 20 L 3 29 Z" fill="#fef3c7" />
+        <path d="M 37 15 L 22 4 L 22 20 L 37 29 Z" fill="#fef3c7" />
+      </g>
+      <!-- Book 2 (Top Right) -->
+      <g transform="translate(485, 175) rotate(15) scale(0.9)">
+        <path d="M 0 15 L 20 0 L 40 15 L 40 32 L 20 18 L 0 32 Z" fill="#f59e0b" />
+        <path d="M 20 0 L 20 18" stroke="#78350f" stroke-width="1.5" />
+        <path d="M 3 15 L 18 4 L 18 20 L 3 29 Z" fill="#fef3c7" />
+        <path d="M 37 15 L 22 4 L 22 20 L 37 29 Z" fill="#fef3c7" />
+      </g>
+      <!-- Book 3 (Middle Left) -->
+      <g transform="translate(275, 260) rotate(10) scale(0.9)">
+        <path d="M 0 15 L 20 0 L 40 15 L 40 32 L 20 18 L 0 32 Z" fill="#a855f7" />
+        <path d="M 20 0 L 20 18" stroke="#4c1d95" stroke-width="1.5" />
+        <path d="M 3 15 L 18 4 L 18 20 L 3 29 Z" fill="#fef3c7" />
+        <path d="M 37 15 L 22 4 L 22 20 L 37 29 Z" fill="#fef3c7" />
+      </g>
+      <!-- Book 4 (Top Center) -->
+      <g transform="translate(380, 85) rotate(-5) scale(0.8)">
+        <path d="M 0 15 L 20 0 L 40 15 L 40 32 L 20 18 L 0 32 Z" fill="#10b981" />
+        <path d="M 20 0 L 20 18" stroke="#064e3b" stroke-width="1.5" />
+        <path d="M 3 15 L 18 4 L 18 20 L 3 29 Z" fill="#fef3c7" />
+        <path d="M 37 15 L 22 4 L 22 20 L 37 29 Z" fill="#fef3c7" />
+      </g>
+    </g>
+
+    <!-- Intertwined Golden "PF" Monogram in the Heart of Tree -->
+    <g transform="translate(400, 250)" filter="url(#softGlow)">
+      <!-- Large 'P' -->
+      <path d="M -45 55 L -45 -65 L -10 -65 C 18 -65, 24 -40, 24 -20 C 24 5, 0 10, -25 10 L -25 55 Z" fill="url(#goldPF)" stroke="#78350f" stroke-width="3" />
+      <path d="M -25 -45 L -10 -45 C 5 -45, 5 -10, -10 -10 L -25 -10 Z" fill="#fffbeb" stroke="#78350f" stroke-width="2" />
+      
+      <!-- Intertwined 'F' -->
+      <path d="M -10 55 L -10 -60 L 45 -60 L 45 -40 L 12 -40 L 12 -15 L 40 -15 L 40 5 L 12 5 L 12 55 Z" fill="url(#goldPF)" stroke="#78350f" stroke-width="3" />
+    </g>
+
+    <!-- Bookworm characters with eyeglasses sitting on branch -->
+    <!-- Bookworm 1 -->
+    <g transform="translate(330, 275) scale(0.8)">
+      <path d="M 0 20 C 5 5, 20 5, 25 18 C 30 30, 45 30, 50 15" stroke="#ea580c" stroke-width="10" stroke-linecap="round" fill="none" />
+      <circle cx="10" cy="5" r="10" fill="#fed7aa" stroke="#c2410c" stroke-width="1.5" />
+      <!-- Round Spectacles -->
+      <circle cx="7" cy="4" r="4.5" fill="#e0f2fe" stroke="#0f172a" stroke-width="1.2" />
+      <circle cx="14" cy="4" r="4.5" fill="#e0f2fe" stroke="#0f172a" stroke-width="1.2" />
+      <line x1="11.5" y1="4" x2="9.5" y2="4" stroke="#0f172a" stroke-width="1.2" />
+      <circle cx="8" cy="4" r="1.5" fill="#0f172a" />
+      <circle cx="15" cy="4" r="1.5" fill="#0f172a" />
+    </g>
+    <!-- Bookworm 2 with pencil/paper -->
+    <g transform="translate(325, 410) scale(0.7)">
+      <path d="M 0 20 C 8 5, 18 5, 24 20" stroke="#f97316" stroke-width="9" stroke-linecap="round" fill="none" />
+      <circle cx="28" cy="10" r="10" fill="#fed7aa" stroke="#c2410c" stroke-width="1.5" />
+      <circle cx="26" cy="8" r="4" fill="#e0f2fe" stroke="#0f172a" stroke-width="1.2" />
+      <circle cx="32" cy="8" r="4" fill="#e0f2fe" stroke="#0f172a" stroke-width="1.2" />
+      <!-- Little glasses bridge & pupils -->
+      <circle cx="26" cy="8" r="1.5" fill="#0f172a" />
+      <circle cx="32" cy="8" r="1.5" fill="#0f172a" />
+      <text x="38" y="2" font-size="12" font-family="sans-serif" font-weight="bold" fill="#0f172a">?</text>
+    </g>
+
+    <!-- Little Knight in Armor Climbing Right Branch -->
+    <g transform="translate(490, 340) scale(0.7)">
+      <!-- Red Cape -->
+      <path d="M 25 15 C 38 25, 45 45, 40 55 C 30 50, 25 35, 20 20 Z" fill="#ef4444" stroke="#991b1b" stroke-width="1" />
+      <!-- Armor Body -->
+      <rect x="10" y="15" width="16" height="22" rx="3" fill="#cbd5e1" stroke="#475569" stroke-width="1.2" />
+      <!-- Helmet with red plume -->
+      <circle cx="18" cy="8" r="9" fill="#94a3b8" stroke="#334155" stroke-width="1.2" />
+      <path d="M 12 8 L 24 8" stroke="#0f172a" stroke-width="2" />
+      <path d="M 18 -1 C 18 -10, 28 -8, 25 0 Z" fill="#ef4444" />
+      <!-- Arms reaching up branch -->
+      <path d="M 10 18 L -2 6" stroke="#475569" stroke-width="4" stroke-linecap="round" />
+      <path d="M 26 22 L 32 12" stroke="#475569" stroke-width="4" stroke-linecap="round" />
+      <!-- Legs climbing -->
+      <path d="M 12 36 L 5 48" stroke="#475569" stroke-width="4" stroke-linecap="round" />
+      <path d="M 22 36 L 26 48" stroke="#475569" stroke-width="4" stroke-linecap="round" />
+    </g>
+  </g>
+
+  <!-- ========================================== -->
+  <!-- 2. FOUR WRITING HANDS WITH PENS & QUILLS   -->
+  <!-- ========================================== -->
+  <!-- Hand 1: Top-Left with Modern Pen -->
+  <g transform="translate(150, 110) scale(0.85)">
+    <!-- Blue Sleeve -->
+    <path d="M 0 85 L 30 90 L 35 125 L -5 120 Z" fill="#1e3a8a" stroke="#172554" stroke-width="2" />
+    <rect x="26" y="86" width="9" height="38" rx="2" fill="#ffffff" stroke="#cbd5e1" stroke-width="1" />
+    <!-- Hand & Fingers -->
+    <path d="M 34 92 C 55 90, 75 95, 90 110 C 95 115, 90 130, 75 130 C 55 130, 45 125, 34 122 Z" fill="#fed7aa" stroke="#9a3412" stroke-width="2" />
+    <path d="M 65 105 C 80 102, 95 110, 100 118" stroke="#9a3412" stroke-width="1.5" fill="none" />
+    <!-- Pen pointing to tree -->
+    <line x1="15" y1="35" x2="105" y2="135" stroke="#78350f" stroke-width="7" stroke-linecap="round" />
+    <polygon points="105,135 115,145 100,145" fill="#facc15" stroke="#78350f" stroke-width="1" />
+  </g>
+
+  <!-- Hand 2: Top-Right with Feather Quill -->
+  <g transform="translate(650, 85) scale(0.85)">
+    <!-- Brown Sleeve -->
+    <path d="M 80 90 L 50 95 L 45 130 L 75 130 Z" fill="#78350f" stroke="#451a03" stroke-width="2" />
+    <rect x="42" y="93" width="9" height="38" rx="2" fill="#ffffff" stroke="#cbd5e1" stroke-width="1" />
+    <!-- Hand -->
+    <path d="M 44 95 C 25 95, 10 100, -5 115 C -10 120, -5 135, 10 135 C 28 135, 38 128, 46 125 Z" fill="#fed7aa" stroke="#9a3412" stroke-width="2" />
+    <!-- Long Feather Quill -->
+    <path d="M 75 5 C 40 25, 0 85, -25 145" stroke="#e2e8f0" stroke-width="8" stroke-linecap="round" fill="none" />
+    <path d="M 75 5 C 65 25, 45 50, 20 75 C 35 60, 55 40, 75 5 Z" fill="#cbd5e1" stroke="#64748b" stroke-width="1" />
+    <!-- Quill Tip -->
+    <polygon points="-25,145 -35,155 -22,152" fill="#facc15" stroke="#78350f" stroke-width="1" />
+  </g>
+
+  <!-- Hand 3: Lower-Left with Feather Quill -->
+  <g transform="translate(130, 280) scale(0.85)">
+    <!-- Sleeve -->
+    <path d="M 15 105 L 45 110 L 40 145 L 10 140 Z" fill="#581c87" stroke="#3b0764" stroke-width="2" />
+    <path d="M 44 112 C 65 110, 80 115, 95 130 C 100 135, 95 150, 80 150 C 60 150, 50 145, 40 142 Z" fill="#fed7aa" stroke="#9a3412" stroke-width="2" />
+    <!-- Quill Pen -->
+    <path d="M -5 50 C 25 65, 75 105, 115 155" stroke="#94a3b8" stroke-width="7" stroke-linecap="round" fill="none" />
+    <path d="M -5 50 C 15 55, 45 75, 65 95 C 45 85, 20 75, -5 50 Z" fill="#cbd5e1" stroke="#64748b" stroke-width="1" />
+    <polygon points="115,155 125,165 112,163" fill="#facc15" stroke="#78350f" stroke-width="1" />
+  </g>
+
+  <!-- Hand 4: Lower-Right with Stylus -->
+  <g transform="translate(640, 240) scale(0.85)">
+    <!-- Sleeve -->
+    <path d="M 75 115 L 45 120 L 40 155 L 70 155 Z" fill="#854d0e" stroke="#451a03" stroke-width="2" />
+    <path d="M 44 120 C 25 120, 10 125, -5 140 C -10 145, -5 160, 10 160 C 28 160, 38 152, 46 150 Z" fill="#fed7aa" stroke="#9a3412" stroke-width="2" />
+    <!-- Stylus Pen -->
+    <line x1="85" y1="65" x2="-20" y2="170" stroke="#78350f" stroke-width="6" stroke-linecap="round" />
+    <polygon points="-20,170 -30,178 -18,177" fill="#facc15" stroke="#78350f" stroke-width="1" />
+  </g>
+
+  <!-- ========================================== -->
+  <!-- 3. PUZZLE BASE & FOUNDATION SILHOUETTES    -->
+  <!-- ========================================== -->
+  <g id="puzzleBase" transform="translate(400, 520)">
+    <!-- Interlocking Jigsaw Puzzle Block -->
+    <path d="M -90 -45 L -45 -45 C -45 -55, -35 -60, -25 -60 C -15 -60, -5 -55, -5 -45 L 35 -45 C 35 -35, 45 -30, 55 -30 C 65 -30, 75 -35, 75 -45 L 110 -45 L 110 5 C 100 5, 95 15, 95 25 C 95 35, 100 45, 110 45 L 85 45 C 85 35, 75 30, 65 30 C 55 30, 45 35, 45 45 L -45 45 C -45 55, -55 60, -65 60 C -75 60, -85 55, -85 45 L -110 45 L -110 -5 C -100 -5, -95 -15, -95 -25 C -95 -35, -100 -45, -110 -45 Z" fill="#e2d4be" stroke="#78350f" stroke-width="2.5" />
+    
+    <!-- Engraved Map Text on Puzzle -->
+    <text x="45" y="-12" font-family="sans-serif" font-weight="900" font-size="14" fill="#64748b" letter-spacing="2">MAP</text>
+
+    <!-- Black Silhouettes on Puzzle Base -->
+    <!-- Dragon Silhouette (Top Right of Puzzle) -->
+    <g transform="translate(50, -65) scale(0.65)" fill="#0f172a">
+      <path d="M 10 30 C 15 15, 25 10, 40 12 C 30 18, 35 25, 45 22 C 38 28, 32 30, 30 40 C 25 45, 15 50, 5 45 C 15 42, 10 35, 10 30 Z" />
+      <path d="M 25 15 C 35 5, 55 0, 60 10 C 45 10, 40 18, 30 20 Z" /> <!-- Wings -->
+    </g>
+
+    <!-- Robot Silhouette (Right Edge) -->
+    <g transform="translate(85, -20) scale(0.55)" fill="#0f172a">
+      <rect x="5" y="0" width="16" height="12" rx="2" />
+      <rect x="2" y="15" width="22" height="20" rx="3" />
+      <rect x="-3" y="18" width="4" height="14" rx="2" />
+      <rect x="25" y="18" width="4" height="14" rx="2" />
+      <rect x="6" y="36" width="5" height="10" />
+      <rect x="15" y="36" width="5" height="10" />
+    </g>
+
+    <!-- Castle Crown & Chess Knight (Center/Right) -->
+    <g transform="translate(50, 15) scale(0.6)" fill="#0f172a">
+      <polygon points="5,20 10,5 18,15 26,5 31,20" />
+      <rect x="5" y="20" width="26" height="5" />
+    </g>
+
+    <!-- Shadow Figures / Writers (Left of Puzzle) -->
+    <g transform="translate(-105, 10) scale(0.65)" fill="#0f172a">
+      <circle cx="15" cy="5" r="7" />
+      <path d="M 5 15 L 25 15 L 20 40 L 10 40 Z" />
+      <line x1="5" y1="20" x2="-5" y2="10" stroke="#0f172a" stroke-width="4" stroke-linecap="round" />
+    </g>
+    <!-- Little Running Shadow Figure -->
+    <g transform="translate(80, 20) scale(0.55)" fill="#0f172a">
+      <circle cx="15" cy="5" r="7" />
+      <path d="M 8 15 L 22 15 L 18 35 L 12 35 Z" />
+    </g>
+  </g>
+
+  <!-- ========================================== -->
+  <!-- 4. FOUNTAIN PEN NIB PLANTED IN INK POOL    -->
+  <!-- ========================================== -->
+  <g id="fountainNib" transform="translate(400, 500)">
+    <!-- Nib Body -->
+    <path d="M -26 -70 L 26 -70 L 22 -15 L 0 70 L -22 -15 Z" fill="url(#nibMetallic)" stroke="#78350f" stroke-width="3" />
+    
+    <!-- Vertical Engraved "DESIGN" Text inside Nib -->
+    <text x="0" y="-18" font-family="sans-serif" font-weight="bold" font-size="9" fill="#78350f" text-anchor="middle" transform="rotate(-90 0 -18)" letter-spacing="3">DESIGN</text>
+
+    <!-- Nib Slit, Breather Hole & Filigree Lines -->
+    <circle cx="0" cy="-5" r="4.5" fill="#0f172a" stroke="#78350f" stroke-width="1.2" />
+    <line x1="0" y1="-5" x2="0" y2="70" stroke="#0f172a" stroke-width="2.5" />
+    <path d="M -14 -40 C -8 -20, 0 -10, 0 -10 C 0 -10, 8 -20, 14 -40" stroke="#78350f" stroke-width="1.8" fill="none" />
+
+    <!-- Dark Ink Pool at the tip of the nib -->
+    <ellipse cx="0" cy="74" rx="55" ry="12" fill="#0f172a" />
+    <ellipse cx="-40" cy="76" rx="10" ry="4" fill="#0f172a" />
+    <ellipse cx="45" cy="75" rx="8" ry="3.5" fill="#0f172a" />
+    <circle cx="25" cy="82" r="3" fill="#0f172a" />
+    <circle cx="-25" cy="80" r="2.5" fill="#0f172a" />
+  </g>
+
+  <!-- ========================================== -->
+  <!-- 5. INK BOTTLE CREATURE (LOWER LEFT)        -->
+  <!-- ========================================== -->
+  <g id="inkCreature" transform="translate(195, 520)">
+    <!-- Little Running Legs -->
+    <path d="M -10 35 L -20 50 L -30 48" stroke="#0f172a" stroke-width="4.5" stroke-linecap="round" fill="none" />
+    <path d="M 15 35 L 25 50 L 35 48" stroke="#0f172a" stroke-width="4.5" stroke-linecap="round" fill="none" />
+    <!-- Running Motion Lines Behind Legs -->
+    <line x1="-35" y1="42" x2="-22" y2="42" stroke="#64748b" stroke-width="2" />
+    <line x1="-38" y1="48" x2="-25" y2="48" stroke="#64748b" stroke-width="2" />
+
+    <!-- Ink Jar Body -->
+    <rect x="-24" y="-10" width="48" height="46" rx="8" fill="#1e293b" stroke="url(#goldFiligree)" stroke-width="3" />
+    <rect x="-16" y="-20" width="32" height="12" rx="3" fill="#475569" stroke="#1e293b" stroke-width="2" />
+    
+    <!-- White Ink Label with "INK" -->
+    <rect x="-18" y="0" width="36" height="26" rx="3" fill="#f8fafc" stroke="#0f172a" stroke-width="1.5" />
+    <text x="0" y="18" font-family="sans-serif" font-weight="900" font-size="13" fill="#0f172a" text-anchor="middle" letter-spacing="1">INK</text>
+
+    <!-- Little Arms -->
+    <path d="M -24 10 L -38 0" stroke="#0f172a" stroke-width="4" stroke-linecap="round" />
+    <path d="M 24 10 L 38 0" stroke="#0f172a" stroke-width="4" stroke-linecap="round" />
+
+    <!-- Jumping "WORD" Book Floating above Inkpot -->
+    <g transform="translate(-40, -45) rotate(-25)">
+      <rect x="0" y="0" width="36" height="26" rx="3" fill="#eab308" stroke="#78350f" stroke-width="2" />
+      <text x="5" y="17" font-family="sans-serif" font-weight="bold" font-size="8" fill="#78350f">WORD</text>
+      <!-- Pages -->
+      <path d="M 36 3 L 42 6 L 42 28 L 36 26 Z" fill="#fffbeb" stroke="#78350f" stroke-width="1" />
+    </g>
+  </g>
+
+  <!-- ========================================== -->
+  <!-- 6. BLACKSMITH FORGING STORIES (LOWER RIGHT)-->
+  <!-- ========================================== -->
+  <g id="blacksmith" transform="translate(605, 520)">
+    <!-- Blacksmith Anvil -->
+    <g transform="translate(-85, 20)">
+      <!-- Anvil Base -->
+      <path d="M 0 50 L 60 50 L 50 65 L 70 80 L -10 80 L 10 65 Z" fill="url(#anvilGrad)" stroke="#0f172a" stroke-width="2.5" />
+      <!-- Anvil Waist & Horn -->
+      <path d="M 10 25 L 50 25 L 75 32 L 50 45 L 5 45 L -20 32 Z" fill="url(#anvilGrad)" stroke="#0f172a" stroke-width="2.5" />
+      
+      <!-- Open Book Resting on Anvil -->
+      <g transform="translate(12, 10)">
+        <path d="M 0 15 L 18 5 L 36 15 L 36 25 L 18 15 L 0 25 Z" fill="#fef08a" stroke="#78350f" stroke-width="1.8" />
+        <line x1="18" y1="5" x2="18" y2="15" stroke="#78350f" stroke-width="2" />
+      </g>
+      
+      <!-- Glowing Forge Impact Sparks -->
+      <path d="M 30 -5 L 35 10 L 48 5 L 38 18 L 52 25 L 36 25 L 30 38 L 24 25 L 8 25 L 22 18 L 12 5 L 25 10 Z" fill="#fef08a" stroke="#f59e0b" stroke-width="1.5" />
+      <circle cx="10" cy="-10" r="3" fill="#f97316" />
+      <circle cx="45" cy="-8" r="3" fill="#f97316" />
+      <circle cx="55" cy="5" r="2.5" fill="#eab308" />
+    </g>
+
+    <!-- Blacksmith Character -->
+    <g transform="translate(10, -35)">
+      <!-- Massive Hammer (Raised over shoulder) -->
+      <g transform="translate(-10, -40) rotate(-45)">
+        <!-- Hammer Handle -->
+        <rect x="0" y="0" width="8" height="75" rx="3" fill="#78350f" stroke="#451a03" stroke-width="2" />
+        <!-- Big Hammer Head -->
+        <rect x="-14" y="-12" width="36" height="24" rx="4" fill="url(#anvilGrad)" stroke="#0f172a" stroke-width="2.5" />
+        <!-- Impact Spark Lines -->
+        <line x1="-20" y1="-5" x2="-28" y2="-12" stroke="#f59e0b" stroke-width="2" stroke-linecap="round" />
+        <line x1="-22" y1="0" x2="-32" y2="0" stroke="#f59e0b" stroke-width="2" stroke-linecap="round" />
+        <line x1="-20" y1="5" x2="-28" y2="12" stroke="#f59e0b" stroke-width="2" stroke-linecap="round" />
+      </g>
+
+      <!-- Head with Red/Ginger Beard -->
+      <circle cx="15" cy="15" r="16" fill="#fed7aa" stroke="#9a3412" stroke-width="2" />
+      <!-- Eyes & Determined Brow -->
+      <path d="M 5 8 L 14 12" stroke="#451a03" stroke-width="2.5" stroke-linecap="round" />
+      <circle cx="9" cy="14" r="2.2" fill="#0f172a" />
+      <circle cx="19" cy="14" r="2.2" fill="#0f172a" />
+      <path d="M 12 18 C 12 22, 16 22, 16 18" stroke="#9a3412" stroke-width="1.5" fill="none" />
+      <!-- Big Ginger Beard & Mustache -->
+      <path d="M -2 15 C 2 30, 8 45, 15 48 C 22 45, 28 30, 32 15 C 25 18, 5 18, -2 15 Z" fill="#ea580c" stroke="#9a3412" stroke-width="2" />
+
+      <!-- Leather Apron with "PF" Monogram -->
+      <path d="M -5 32 L 35 32 L 40 85 L -10 85 Z" fill="#92400e" stroke="#451a03" stroke-width="2.5" />
+      <text x="15" y="65" font-family="serif" font-weight="900" font-size="14" fill="#fef3c7" text-anchor="middle" letter-spacing="1">PF</text>
+
+      <!-- Muscular Arms & Blacksmith Gloves -->
+      <!-- Left Arm holding handle -->
+      <path d="M 0 35 L -15 15" stroke="#fed7aa" stroke-width="12" stroke-linecap="round" />
+      <path d="M 0 35 L -15 15" stroke="#9a3412" stroke-width="12" stroke-linecap="round" stroke-dasharray="2 10" />
+      <!-- Dark Leather Glove -->
+      <circle cx="-16" cy="12" r="8" fill="#78350f" stroke="#451a03" stroke-width="2" />
+
+      <!-- Legs & Sturdy Boots -->
+      <rect x="-8" y="85" width="14" height="25" fill="#1e293b" stroke="#0f172a" stroke-width="2" />
+      <rect x="20" y="85" width="14" height="25" fill="#1e293b" stroke="#0f172a" stroke-width="2" />
+      <path d="M -12 105 L 8 105 L 8 115 L -16 115 Z" fill="#451a03" stroke="#000000" stroke-width="1.5" />
+      <path d="M 16 105 L 36 105 L 40 115 L 16 115 Z" fill="#451a03" stroke="#000000" stroke-width="1.5" />
+    </g>
+  </g>
+
+  <!-- ========================================== -->
+  <!-- 7. CLASSIC BRAND TYPOGRAPHY AT BOTTOM      -->
+  <!-- ========================================== -->
+  <g id="brandTypography" transform="translate(400, 685)" text-anchor="middle">
+    <!-- Main "PLOT FORGE" Title -->
+    <text x="0" y="0" font-family="Georgia, 'Times New Roman', serif" font-weight="900" font-size="64" fill="#143e3b" letter-spacing="10" stroke="#082f2c" stroke-width="1.5">
+      PLOT FORGE
+    </text>
+
+    <!-- Subtitle "CREATE LEGENDS" -->
+    <text x="0" y="44" font-family="system-ui, -apple-system, sans-serif" font-weight="800" font-size="28" fill="#134e4a" letter-spacing="8">
+      CREATE LEGENDS
+    </text>
+  </g>
+</svg>

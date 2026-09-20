@@ -1,0 +1,6 @@
+{
+  "name": "Plotforge",
+  "description": "Collaborative screenplay and story writing platform for authors and film fans",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
