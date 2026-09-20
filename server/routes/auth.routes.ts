@@ -119,34 +119,50 @@ authRouter.post("/login", (req: Request, res: Response) => {
 });
 
 // ==========================================
-// 3. GOOGLE AUTHENTICATION (Verified Claims)
+// 3. GOOGLE AUTHENTICATION CONFIG & VERIFICATION
 // ==========================================
+authRouter.get("/google/url", (req: Request, res: Response) => {
+  const host = req.get("x-forwarded-host") || req.get("host") || "localhost:3000";
+  const protocol = req.protocol === "https" || req.get("x-forwarded-proto") === "https" ? "https" : "http";
+  const redirectUri = `${protocol}://${host}/auth/google/callback`;
+  const clientId = process.env.GOOGLE_CLIENT_ID || "472663517785-h2qpvdok8f6ir0pnpjk85qj3s946m00s.apps.googleusercontent.com";
+
+  const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${encodeURIComponent(clientId)}&redirect_uri=${encodeURIComponent(redirectUri)}&response_type=token%20id_token&scope=openid%20email%20profile&prompt=select_account&nonce=${Date.now()}`;
+
+  res.json({
+    clientId,
+    redirectUri,
+    authUrl
+  });
+});
+
 authRouter.post("/google", async (req: Request, res: Response) => {
-  const { credential, googleToken, email, name, picture } = req.body;
+  const { credential, googleToken } = req.body;
 
-  let verifiedEmail: string | null = null;
-  let verifiedName: string = name || "";
-  let verifiedPicture: string | undefined = picture;
+  // Security Hardening: Token MUST be supplied and verified by Google
+  const tokenToVerify = (typeof credential === "string" && credential.trim())
+    ? credential.trim()
+    : (typeof googleToken === "string" && googleToken.trim())
+      ? googleToken.trim()
+      : null;
 
-  // 1. Verify Google credential token if provided
-  const tokenToVerify = credential || googleToken;
-  if (tokenToVerify && typeof tokenToVerify === "string") {
-    const verified = await verifyGoogleToken(tokenToVerify);
-    if (verified) {
-      verifiedEmail = verified.email;
-      verifiedName = verified.name || verifiedName;
-      verifiedPicture = verified.picture || verifiedPicture;
-    }
+  if (!tokenToVerify) {
+    return res.status(401).json({
+      message: "A valid Google credential ID token is required. Authentication rejected."
+    });
   }
 
-  // Fallback for demo OAuth callback if verifiedEmail was not resolved from Google API
-  if (!verifiedEmail && email && typeof email === "string" && email.includes("@")) {
-    verifiedEmail = email.toLowerCase().trim();
+  const verified = await verifyGoogleToken(tokenToVerify);
+  if (!verified || !verified.email) {
+    return res.status(401).json({
+      message: "Google credential verification failed. The provided token is invalid, expired, or unverified."
+    });
   }
 
-  if (!verifiedEmail) {
-    return res.status(400).json({ message: "Unable to verify Google credentials. Please try signing in again." });
-  }
+  // Identity is STRICTLY extracted from the verified Google cryptographic payload
+  const verifiedEmail = verified.email.toLowerCase().trim();
+  const verifiedName = verified.name || "";
+  const verifiedPicture = verified.picture;
 
   const isOwnerUser = verifiedEmail === OWNER_EMAIL;
   let user = users.find(u => u.email && u.email.toLowerCase() === verifiedEmail);

@@ -22,6 +22,8 @@ import { aiRouter } from "./server/routes/ai.routes.js";
 import { tmdbRouter } from "./server/routes/tmdb.routes.js";
 import { adminRouter } from "./server/routes/admin.routes.js";
 import { shareTokens, projects, contents, comments } from "./server/data/store.js";
+import { requireOwner } from "./server/middleware/auth.js";
+import { evaluateProjectAccess } from "./server/services/accessControl.js";
 
 const app = express();
 const server = http.createServer(app);
@@ -70,7 +72,7 @@ app.get("/api/app-config/logo", (req: Request, res: Response) => {
   }
 });
 
-app.post("/api/app-config/logo", (req: Request, res: Response) => {
+app.post("/api/app-config/logo", requireOwner, (req: Request, res: Response) => {
   try {
     const { dataUrl } = req.body;
     if (!dataUrl || typeof dataUrl !== "string") {
@@ -154,6 +156,17 @@ app.get(["/api/share/:token", "/api/projects/shared/:token"], (req: Request, res
 // Legacy comment endpoint alias: /api/comments/:projectId
 app.get("/api/comments/:projectId", (req: Request, res: Response) => {
   const projId = parseInt(req.params.projectId, 10);
+  const project = projects.find(p => p.id === projId);
+
+  if (!project) {
+    return res.status(404).json({ message: "Project not found." });
+  }
+
+  const access = evaluateProjectAccess(project, req);
+  if (!access.allowed) {
+    return res.status(access.statusCode).json({ message: access.reason });
+  }
+
   const projComments = comments.filter(c => c.projectId === projId);
   res.json(projComments);
 });

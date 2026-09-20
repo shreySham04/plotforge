@@ -2,7 +2,8 @@ import { Router, Request, Response } from "express";
 import { GoogleGenAI, Type } from "@google/genai";
 import axios from "axios";
 import { users } from "../data/store.js";
-import { getAuthUser } from "../middleware/auth.js";
+import { requireAuth, getAuthUser } from "../middleware/auth.js";
+import { aiRateLimit } from "../middleware/aiRateLimit.js";
 
 export const aiRouter = Router();
 
@@ -67,9 +68,9 @@ aiRouter.get("/copilot/config", (req: Request, res: Response) => {
 });
 
 // ==========================================
-// 2. STREAMING COPILOT (Server-Sent Events)
+// 2. STREAMING COPILOT (Server-Sent Events - Protected)
 // ==========================================
-aiRouter.post("/copilot/stream", async (req: Request, res: Response) => {
+aiRouter.post("/copilot/stream", requireAuth, aiRateLimit, async (req: Request, res: Response) => {
   const { storyContent, scriptContent, projectTitle, prompt, apiKey, messages, aiPersona, maxChars } = req.body || {};
   const authUser = getAuthUser(req);
   const selectedPersonaKey = aiPersona || (authUser && (users.find(u => u.id === authUser.id)?.aiPersona)) || "screenplay_editor";
@@ -157,9 +158,9 @@ INSTRUCTIONS & FORMATTING RULES:
 });
 
 // ==========================================
-// 3. STRUCTURED COPILOT SUGGESTIONS
+// 3. STRUCTURED COPILOT SUGGESTIONS (Protected)
 // ==========================================
-aiRouter.post("/copilot/suggest", async (req: Request, res: Response) => {
+aiRouter.post("/copilot/suggest", requireAuth, aiRateLimit, async (req: Request, res: Response) => {
   const { storyContent, scriptContent, projectTitle, prompt, apiKey, messages, aiPersona, maxChars } = req.body || {};
   const authUser = getAuthUser(req);
   const selectedPersonaKey = aiPersona || (authUser && (users.find(u => u.id === authUser.id)?.aiPersona)) || "screenplay_editor";
@@ -227,9 +228,9 @@ Guidelines:
 });
 
 // ==========================================
-// 4. STORY TO SCRIPT SYNCHRONIZATION
+// 4. STORY TO SCRIPT SYNCHRONIZATION (Protected)
 // ==========================================
-aiRouter.post("/copilot/sync-script", async (req: Request, res: Response) => {
+aiRouter.post("/copilot/sync-script", requireAuth, aiRateLimit, async (req: Request, res: Response) => {
   const { storyContent, scriptContent, projectTitle, apiKey } = req.body || {};
   const customKey = apiKey || (req.headers["x-gemini-api-key"] as string);
   const ai = getGenAI(customKey);
@@ -283,9 +284,9 @@ Return strict JSON:
 });
 
 // ==========================================
-// 5. SLIDES / CINEMATIC QUOTES GENERATION
+// 5. SLIDES / CINEMATIC QUOTES GENERATION (Protected)
 // ==========================================
-aiRouter.post("/slides/generate", async (req: Request, res: Response) => {
+aiRouter.post("/slides/generate", requireAuth, aiRateLimit, async (req: Request, res: Response) => {
   const { genre, apiKey } = req.body || {};
   const customKey = apiKey || (req.headers["x-gemini-api-key"] as string);
   const ai = getGenAI(customKey);

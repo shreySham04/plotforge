@@ -10,6 +10,7 @@ import {
   queuePersistence
 } from "../data/store.js";
 import { requireAuth, getAuthUser, isOwner } from "../middleware/auth.js";
+import { evaluateProjectAccess } from "../services/accessControl.js";
 import { Invitation, Collaborator, ProjectComment } from "../types/index.js";
 
 export const collaborationRouter = Router();
@@ -81,8 +82,9 @@ collaborationRouter.post("/invitations/:id/accept", requireAuth, (req: Request, 
   const emailLower = authUser.email.toLowerCase();
   const target = invite.targetUsernameOrEmail.toLowerCase();
 
+  // Security: Only the addressed invitee or platform owner can accept
   if (target !== usernameLower && target !== emailLower && !isOwner(authUser)) {
-    return res.status(403).json({ message: "This invitation is not addressed to your account." });
+    return res.status(403).json({ message: "Forbidden: This invitation was not addressed to your account." });
   }
 
   invite.status = "ACCEPTED";
@@ -119,6 +121,15 @@ collaborationRouter.post("/invitations/:id/decline", requireAuth, (req: Request,
     return res.status(404).json({ message: "Invitation not found." });
   }
 
+  const usernameLower = authUser.username.toLowerCase();
+  const emailLower = authUser.email.toLowerCase();
+  const target = invite.targetUsernameOrEmail.toLowerCase();
+
+  // Security: Only the addressed invitee or platform owner can decline
+  if (target !== usernameLower && target !== emailLower && !isOwner(authUser)) {
+    return res.status(403).json({ message: "Forbidden: This invitation was not addressed to your account." });
+  }
+
   invite.status = "DECLINED";
   queuePersistence();
   res.json({ message: "Invitation declined.", invite });
@@ -132,11 +143,19 @@ collaborationRouter.post("/invitations/:id/respond", requireAuth, (req: Request,
 
   if (!invite) return res.status(404).json({ message: "Invitation not found." });
 
+  const usernameLower = authUser.username.toLowerCase();
+  const emailLower = authUser.email.toLowerCase();
+  const target = invite.targetUsernameOrEmail.toLowerCase();
+
+  // Security: Only the addressed invitee or platform owner can respond
+  if (target !== usernameLower && target !== emailLower && !isOwner(authUser)) {
+    return res.status(403).json({ message: "Forbidden: This invitation was not addressed to your account." });
+  }
+
   const { accept } = req.body;
   if (accept) {
     invite.status = "ACCEPTED";
     if (!collaborators[invite.projectId]) collaborators[invite.projectId] = [];
-    const usernameLower = authUser.username.toLowerCase();
     const existing = collaborators[invite.projectId].find(c => c.userId === authUser.id || c.username.toLowerCase() === usernameLower);
     if (!existing) {
       collaborators[invite.projectId].push({
@@ -190,10 +209,21 @@ collaborationRouter.delete("/projects/:projectId/collaborators/:id", requireAuth
 });
 
 // ==========================================
-// 3. PROJECT COMMENTS
+// 3. PROJECT COMMENTS (Participant Authorized)
 // ==========================================
 collaborationRouter.get("/projects/:projectId/comments", (req: Request, res: Response) => {
   const projId = parseInt(req.params.projectId, 10);
+  const project = projects.find(p => p.id === projId);
+
+  if (!project) {
+    return res.status(404).json({ message: "Project not found." });
+  }
+
+  const access = evaluateProjectAccess(project, req);
+  if (!access.allowed) {
+    return res.status(access.statusCode).json({ message: access.reason });
+  }
+
   const projectComments = comments.filter(c => c.projectId === projId);
   res.json(projectComments);
 });
@@ -205,6 +235,22 @@ collaborationRouter.post("/comments", requireAuth, (req: Request, res: Response)
   const projId = parseInt(projectId, 10);
   const project = projects.find(p => p.id === projId);
   if (!project) return res.status(404).json({ message: "Project not found." });
+
+  // Security: If project is private, user MUST be author, active collaborator, or platform owner
+  if (project.isPublic === false) {
+    const isAuthor = project.authorId === authUser.id || project.authorUsername.toLowerCase() === authUser.username.toLowerCase();
+    const isOwnerUser = isOwner(authUser);
+    const projectCollabs = collaborators[projId] || [];
+    const isCollab = projectCollabs.some(
+      c => (c.userId && c.userId === authUser.id) || (c.username && c.username.toLowerCase() === authUser.username.toLowerCase())
+    );
+
+    if (!isAuthor && !isOwnerUser && !isCollab) {
+      return res.status(403).json({
+        message: "Forbidden: You must be a project participant (author or collaborator) to comment on this private project."
+      });
+    }
+  }
 
   const cleanContent = (content || "").trim();
   if (!cleanContent) {

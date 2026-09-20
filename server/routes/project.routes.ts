@@ -12,6 +12,7 @@ import {
 } from "../data/store.js";
 import { requireAuth, getAuthUser, isOwner } from "../middleware/auth.js";
 import { generateProjectPdf } from "../services/pdfService.js";
+import { evaluateProjectAccess } from "../services/accessControl.js";
 import { Project } from "../types/index.js";
 
 export const projectRouter = Router();
@@ -68,21 +69,10 @@ projectRouter.get("/:id", (req: Request, res: Response) => {
     return res.status(404).json({ message: "Project not found." });
   }
 
-  // Access check for private projects
-  if (project.isPublic === false) {
-    const authUser = getAuthUser(req);
-    if (!authUser) {
-      return res.status(401).json({ message: "This project is private. Please sign in to view." });
-    }
-
-    const isAuthor = project.authorId === authUser.id || project.authorUsername.toLowerCase() === authUser.username.toLowerCase();
-    const isCollab = (collaborators[projectId] || []).some(
-      c => (c.userId && c.userId === authUser.id) || (c.username && c.username.toLowerCase() === authUser.username.toLowerCase())
-    );
-
-    if (!isAuthor && !isCollab && !isOwner(authUser)) {
-      return res.status(403).json({ message: "Access forbidden: You are not authorized to view this private project." });
-    }
+  // Authoritative access evaluation for public, private, and shared projects
+  const access = evaluateProjectAccess(project, req);
+  if (!access.allowed) {
+    return res.status(access.statusCode).json({ message: access.reason });
   }
 
   res.json(project);
@@ -201,7 +191,7 @@ projectRouter.delete("/:id", requireAuth, (req: Request, res: Response) => {
 });
 
 // ==========================================
-// 6. CRYPTOGRAPHIC SHARE TOKEN GENERATION
+// 6. CRYPTOGRAPHIC SHARE TOKEN GENERATION (Authorized)
 // ==========================================
 projectRouter.get("/:id/share-link", requireAuth, (req: Request, res: Response) => {
   const projectId = parseInt(req.params.id, 10);
@@ -209,6 +199,21 @@ projectRouter.get("/:id/share-link", requireAuth, (req: Request, res: Response) 
 
   if (!project) {
     return res.status(404).json({ message: "Project not found." });
+  }
+
+  const authUser = req.user!;
+  const isAuthor = project.authorId === authUser.id || project.authorUsername.toLowerCase() === authUser.username.toLowerCase();
+  const projectCollabs = collaborators[project.id] || [];
+  const isEditorCollab = projectCollabs.some(
+    c => ((c.userId && c.userId === authUser.id) || (c.username && c.username.toLowerCase() === authUser.username.toLowerCase())) &&
+         c.role === "EDITOR"
+  );
+
+  // Security: Prevent arbitrary users from generating share tokens for others' projects
+  if (!isAuthor && !isOwner(authUser) && !isEditorCollab) {
+    return res.status(403).json({
+      message: "Forbidden: Only the project author, editor collaborator, or platform administrator can generate a share link."
+    });
   }
 
   // Generate 64-character unguessable cryptographic token
@@ -254,7 +259,7 @@ projectRouter.get("/shared/:token", (req: Request, res: Response) => {
 });
 
 // ==========================================
-// 7. REAL PDF EXPORT (PDFKit Engine)
+// 7. REAL PDF EXPORT (PDFKit Engine - Protected)
 // ==========================================
 projectRouter.get("/:id/export/pdf", (req: Request, res: Response) => {
   const projectId = parseInt(req.params.id, 10);
@@ -262,6 +267,12 @@ projectRouter.get("/:id/export/pdf", (req: Request, res: Response) => {
 
   if (!project) {
     return res.status(404).json({ message: "Project not found." });
+  }
+
+  // Access control for private projects and exports
+  const access = evaluateProjectAccess(project, req);
+  if (!access.allowed) {
+    return res.status(access.statusCode).json({ message: access.reason });
   }
 
   const content = contents[projectId] || {
@@ -274,7 +285,7 @@ projectRouter.get("/:id/export/pdf", (req: Request, res: Response) => {
 });
 
 // ==========================================
-// 8. TEXT EXPORT
+// 8. TEXT EXPORT (Protected)
 // ==========================================
 projectRouter.get("/:id/export/txt", (req: Request, res: Response) => {
   const projectId = parseInt(req.params.id, 10);
@@ -282,6 +293,12 @@ projectRouter.get("/:id/export/txt", (req: Request, res: Response) => {
 
   if (!project) {
     return res.status(404).json({ message: "Project not found." });
+  }
+
+  // Access control for private projects and exports
+  const access = evaluateProjectAccess(project, req);
+  if (!access.allowed) {
+    return res.status(access.statusCode).json({ message: access.reason });
   }
 
   const content = contents[projectId] || { projectId, storyContent: "", scriptContent: "" };

@@ -28,7 +28,7 @@
 |  |  Social & Community |  |     TMDB Proxy      |  |  AI Studio Copilot  |  |    In-Memory Store    |  |
 |  | - Reviews & ratings |  | - Multi-search API  |  | - Gemini 2.5 Flash  |  | - Debounced file sync |  |
 |  | - Fan concepts/pitch|  | - In-memory cache   |  | - Persona doctoring |  | - Atomic I/O writes   |  |
-|  | - Public showcase   |  | - Poster fallbacks  |  | - SSE text stream   |  | - Zero data loss      |  |
+|  | - Public showcase   |  | - Poster fallbacks  |  | - SSE text stream   |  | - File-backed storage |  |
 |  +---------------------+  +---------------------+  +---------------------+  +-----------------------+  |
 +----------------------------------------------------+---------------------------------------------------+
                                                      |
@@ -41,31 +41,34 @@
 
 ---
 
-## 🛡️ Security & Integrity Guarantees
+## 🛡️ Security & Authorization Architecture
 
-PlotForge has undergone an end-to-end security hardening pass to eliminate prototype vulnerabilities:
+PlotForge implements a security-focused authorization layer designed to uphold strict boundaries between authenticated users and resources:
 
-1. **Strict Role Enforcement & Privilege Escalation Defense**:
-   - The user registration flow server-authoritatively assigns the `WRITER` role.
+1. **Server-Authoritative Identity & Role Assignment**:
+   - The user registration flow assigns the default `WRITER` role on the server.
    - Client requests attempting to inject `role: "OWNER"` or `role: "ADMIN"` are strictly disregarded.
-   - Administrative and platform owner operations (`/api/admin/*`) require server-side token identity verification against the designated platform owner authority.
+   - Google Sign-In requires verifiable Google OAuth ID tokens validated against Google's tokeninfo API. Unverified client-supplied emails are rejected without fallback (`401 Unauthorized`).
+   - Administrative operations (`/api/admin/*`) strictly verify token identity and ownership credentials.
 
-2. **Signature-Verified JWTs with Dynamic Entropy**:
+2. **Signature-Verified JWTs with Dynamic Secret**:
    - Authentication relies on cryptographic HMAC-SHA256 tokens (`jsonwebtoken`).
-   - All protected endpoints verify the token signature against `JWT_SECRET`.
-   - Missing or forged secrets are rejected with `401 Unauthorized`.
+   - All protected endpoints verify token signatures against `JWT_SECRET`. Missing or forged tokens return `401 Unauthorized`.
 
-3. **Secure Password Storage**:
-   - All passwords are encrypted with `bcryptjs` using 10 salt rounds before persistence.
-   - Plaintext passwords are never stored in disk files or returned in API responses.
+3. **Secure Credential Storage**:
+   - All passwords are encrypted with `bcryptjs` using 10 salt rounds before persistence. Plaintext passwords are never stored or returned.
 
-4. **Cryptographic Share Tokens**:
+4. **Cryptographic Share Tokens & Authorized Creation**:
    - Collaboration and public share links use high-entropy 256-bit cryptographically random tokens (`crypto.randomBytes(32)`).
-   - Insecure sequential identifiers (such as `share-token-1`) have been eradicated.
+   - Share link generation (`GET /api/projects/:id/share-link`) requires author or editor collaborator authorization (`403 Forbidden` for unauthorized callers).
 
-5. **Authoritative Access Control**:
-   - Destructive operations (`DELETE /api/projects/:id`) verify author ownership or platform administrator credentials.
-   - Non-authors receive `403 Forbidden`.
+5. **Authoritative Resource Access Control**:
+   - Private project reading, PDFKit export (`/:id/export/pdf`), and text export (`/:id/export/txt`) require author ownership, active collaborator status, or a valid cryptographic share token.
+   - Invitation mutations (`accept`, `decline`, `respond`) verify that the authenticated user matches the invitation target.
+   - Private project discussions (`POST /api/comments`) are restricted to verified project participants (authors and collaborators).
+
+6. **AI Endpoint Protection & Quota Throttling**:
+   - Generative AI endpoints require authentication and apply sliding-window rate limiting (20 req/min) alongside request payload size validation.
 
 ---
 

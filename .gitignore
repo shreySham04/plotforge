@@ -6,8 +6,9 @@ frontend/node_modules/
 dist/
 frontend/dist/
 
-# Local data & database files
-data/
+# Local data & database files (root runtime data only)
+/data/
+!server/data/
 
 # OS / editor
 .DS_Store

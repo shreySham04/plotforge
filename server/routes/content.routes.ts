@@ -7,6 +7,7 @@ import {
   queuePersistence
 } from "../data/store.js";
 import { requireAuth, getAuthUser, isOwner } from "../middleware/auth.js";
+import { evaluateProjectAccess } from "../services/accessControl.js";
 import { VersionHistoryEntry } from "../types/index.js";
 
 export const contentRouter = Router();
@@ -22,21 +23,10 @@ contentRouter.get("/:projectId", (req: Request, res: Response) => {
     return res.status(404).json({ message: "Project not found." });
   }
 
-  // Access check for private projects
-  if (project.isPublic === false) {
-    const authUser = getAuthUser(req);
-    if (!authUser) {
-      return res.status(401).json({ message: "Authentication required to read this private project's content." });
-    }
-
-    const isAuthor = project.authorId === authUser.id || project.authorUsername.toLowerCase() === authUser.username.toLowerCase();
-    const isCollab = (collaborators[projectId] || []).some(
-      c => (c.userId && c.userId === authUser.id) || (c.username && c.username.toLowerCase() === authUser.username.toLowerCase())
-    );
-
-    if (!isAuthor && !isCollab && !isOwner(authUser)) {
-      return res.status(403).json({ message: "Access forbidden." });
-    }
+  // Authoritative access check (supports private projects & share tokens)
+  const access = evaluateProjectAccess(project, req);
+  if (!access.allowed) {
+    return res.status(access.statusCode).json({ message: access.reason });
   }
 
   const content = contents[projectId] || {

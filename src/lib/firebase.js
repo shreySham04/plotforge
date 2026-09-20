@@ -23,6 +23,7 @@ export const firebaseApp = getApps().length > 0
 // Initialize Firebase Auth
 export const auth = firebaseApp ? getAuth(firebaseApp) : null;
 export const googleProvider = new GoogleAuthProvider();
+googleProvider.setCustomParameters({ prompt: 'select_account' });
 
 // Lazy Firestore accessor - prevents automatic background connection attempts if Firestore is not provisioned
 let _db = null;

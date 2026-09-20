@@ -1,37 +1,65 @@
-# Run Instructions
+# Run & Development Instructions
 
-## Backend (Spring Boot)
+PlotForge is a unified TypeScript application combining an Express API server, native STOMP WebSocket broker, and React 18 client on port 3000.
 
-1. Open terminal in `demo`.
-2. Ensure JDK 21 and Maven are available.
-3. Run:
+---
 
-```powershell
-mvn spring-boot:run
-```
+## 1. Prerequisites
 
-Backend URL: http://localhost:8080
-Swagger UI: http://localhost:8080/swagger-ui.html
+- **Node.js**: v18.0+ or v20.0+ LTS
+- **npm**: v9.0+
 
-## Frontend (React + Vite)
+---
 
-1. Open terminal in `frontend`.
+## 2. Quickstart
+
+1. Clone repository and navigate to root:
+   ```bash
+   git clone https://github.com/shreySham04/plotforge.git
+   cd plotforge
+   ```
+
 2. Install dependencies:
+   ```bash
+   npm install
+   ```
 
-```bash
-npm install
-```
+3. Environment Configuration:
+   ```bash
+   cp .env.example .env
+   ```
+   *Configure `JWT_SECRET`, `GEMINI_API_KEY` (optional for AI copilot), and `TMDB_API_KEY` (optional).*
 
-3. Start dev server:
+4. Run local development server:
+   ```bash
+   npm run dev
+   ```
+   *The Express server boots with Vite middleware on `http://localhost:3000`.*
 
-```bash
-npm run dev
-```
+---
 
-Frontend URL: http://localhost:5173
+## 3. Verification & Testing
 
-## WebSocket
+- **Run Automated Test Suite**:
+  ```bash
+  npm test
+  ```
+- **Typecheck & Linter**:
+  ```bash
+  npm run lint
+  ```
+- **Production Build**:
+  ```bash
+  npm run build
+  ```
 
-- Endpoint: `ws://localhost:8080/ws/editor`
-- Topic subscription: `/topic/project/{projectId}`
-- Client publish destination: `/app/project/{projectId}/edit`
+---
+
+## 4. WebSocket & Real-Time Collaboration
+
+- **WebSocket URL**: `ws://localhost:3000/ws/editor`
+- **Protocol**: STOMP 1.2 over WebSockets
+- **Topic Subscription**: `/topic/project/{projectId}`
+- **Publish Destination**: `/app/project/{projectId}/edit`
+- **Heartbeat**: 10000ms ping/pong intervals
+
