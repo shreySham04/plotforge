@@ -41,4 +41,40 @@ describe("PlotForge v2: Authentication Security & Integrity", () => {
     assert.equal(assignedRole, "WRITER");
     assert.notEqual(reqBody.role, assignedRole);
   });
+
+  test("Privilege escalation defense: isOwner strictly checks role, never email alone", async () => {
+    const { isOwner } = await import("../server/middleware/auth.js");
+    const { OWNER_EMAIL } = await import("../server/config/auth.js");
+
+    // Even if an attacker somehow had the owner email on their account with WRITER role:
+    const sneakyWriter = {
+      id: 999,
+      username: "imposter",
+      email: OWNER_EMAIL || "owner@plotforge.local",
+      role: "WRITER",
+      isOwner: false
+    };
+
+    // Authorization MUST reject standard writer role even if email matches
+    assert.equal(isOwner(sneakyWriter), false);
+
+    // Only genuine OWNER or ADMIN role is recognized
+    const genuineOwner = {
+      id: 1,
+      username: "legit_owner",
+      email: "any_email@plotforge.local",
+      role: "OWNER",
+      isOwner: true
+    };
+    assert.equal(isOwner(genuineOwner), true);
+
+    const adminUser = {
+      id: 2,
+      username: "admin_user",
+      email: "admin@plotforge.local",
+      role: "ADMIN",
+      isOwner: true
+    };
+    assert.equal(isOwner(adminUser), true);
+  });
 });

@@ -1,7 +1,7 @@
 import { Server as HttpServer, IncomingMessage } from "http";
 import { WebSocketServer, WebSocket } from "ws";
 import jwt from "jsonwebtoken";
-import { JWT_SECRET, OWNER_EMAIL } from "../config/auth.js";
+import { JWT_SECRET } from "../config/auth.js";
 import { projects, collaborators, shareTokens } from "../data/store.js";
 
 interface StompSubscription {
@@ -201,8 +201,7 @@ export function setupStompWebSocketServer(server: HttpServer): WebSocketServer {
                 project.authorUsername.toLowerCase() === client.user.username.toLowerCase();
               const isOwnerUser =
                 client.user.role === "OWNER" ||
-                client.user.role === "ADMIN" ||
-                (OWNER_EMAIL && client.user.email === OWNER_EMAIL);
+                client.user.role === "ADMIN";
               const projectCollabs = collaborators[project.id] || [];
               const isCollaborator = projectCollabs.some(
                 c =>
@@ -268,8 +267,7 @@ export function setupStompWebSocketServer(server: HttpServer): WebSocketServer {
             project.authorUsername.toLowerCase() === client.user.username.toLowerCase();
           const isOwnerUser =
             client.user.role === "OWNER" ||
-            client.user.role === "ADMIN" ||
-            (OWNER_EMAIL && client.user.email === OWNER_EMAIL);
+            client.user.role === "ADMIN";
           const projectCollabs = collaborators[project.id] || [];
           const isEditorCollab = projectCollabs.some(
             c =>

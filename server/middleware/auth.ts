@@ -22,14 +22,13 @@ export function getAuthUser(req: Request): AuthUser | null {
     const decoded = jwt.verify(parts[1], JWT_SECRET) as any;
     if (!decoded || !decoded.id) return null;
 
-    const emailLower = (decoded.email || "").toLowerCase();
-    const isOwnerUser = emailLower === OWNER_EMAIL || decoded.role === "OWNER" || decoded.role === "ADMIN";
+    const isOwnerUser = decoded.role === "OWNER" || decoded.role === "ADMIN";
 
     return {
       id: Number(decoded.id),
       username: decoded.username || "",
       email: decoded.email || "",
-      role: isOwnerUser ? "OWNER" : (decoded.role || "WRITER"),
+      role: decoded.role || "WRITER",
       isOwner: isOwnerUser
     };
   } catch {
@@ -48,8 +47,7 @@ export function requireAuth(req: Request, res: Response, next: NextFunction) {
 
 export function isOwner(user: AuthUser | null | undefined): boolean {
   if (!user) return false;
-  const emailLower = (user.email || "").toLowerCase();
-  return emailLower === OWNER_EMAIL || user.role === "OWNER" || user.role === "ADMIN";
+  return user.role === "OWNER" || user.role === "ADMIN";
 }
 
 export function requireOwner(req: Request, res: Response, next: NextFunction) {

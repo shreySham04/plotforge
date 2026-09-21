@@ -33,9 +33,15 @@ authRouter.post("/register", (req: Request, res: Response) => {
     return res.status(400).json({ message: "An account with this email or username already exists. Please log in." });
   }
 
-  // Privilege Escalation Defense: Standard registration CANNOT set role
-  const isDesignatedOwner = cleanEmail === OWNER_EMAIL;
-  const assignedRole = isDesignatedOwner ? "OWNER" : "WRITER";
+  // Privilege Escalation Defense: Platform Owner role CANNOT be claimed through public registration.
+  // The owner account is provisioned exclusively through bootstrapOwnerFromEnv().
+  if (OWNER_EMAIL && cleanEmail === OWNER_EMAIL) {
+    return res.status(403).json({
+      message: "Forbidden: The platform owner email is reserved. Please log in with existing credentials."
+    });
+  }
+
+  const assignedRole = "WRITER";
 
   const newUser: User = {
     id: nextUserId(),
@@ -43,7 +49,7 @@ authRouter.post("/register", (req: Request, res: Response) => {
     email: cleanEmail,
     passwordHash: bcrypt.hashSync(password, 10),
     role: assignedRole,
-    bio: isDesignatedOwner ? "Platform Owner & Super Administrator" : "Plotforge creative author",
+    bio: "Plotforge creative author",
     profileImage: `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(cleanUsername)}`,
     createdAt: new Date().toISOString()
   };
@@ -63,7 +69,7 @@ authRouter.post("/register", (req: Request, res: Response) => {
     username: newUser.username,
     email: newUser.email,
     role: newUser.role,
-    isOwner: isDesignatedOwner,
+    isOwner: newUser.role === "OWNER" || newUser.role === "ADMIN",
     profileImage: newUser.profileImage
   });
 });
@@ -99,7 +105,7 @@ authRouter.post("/login", (req: Request, res: Response) => {
     return res.status(401).json({ message: "Invalid credentials. Please verify your password." });
   }
 
-  const isOwnerUser = user.email.toLowerCase() === OWNER_EMAIL || user.role === "OWNER" || user.role === "ADMIN";
+  const isOwnerUser = user.role === "OWNER" || user.role === "ADMIN";
 
   const token = jwt.sign(
     { id: user.id, username: user.username, email: user.email, role: user.role },
@@ -245,8 +251,46 @@ authRouter.put("/me", requireAuth, (req: Request, res: Response) => {
     return res.status(404).json({ message: "User not found." });
   }
 
-  if (username && typeof username === "string") user.username = username.trim();
-  if (email && typeof email === "string" && email.includes("@")) user.email = email.trim().toLowerCase();
+  // Security: Prevent username collisions with existing accounts
+  if (username && typeof username === "string") {
+    const cleanUsername = username.trim();
+    if (cleanUsername && cleanUsername.toLowerCase() !== user.username.toLowerCase()) {
+      const usernameExists = users.some(
+        u => u.id !== user.id && u.username.toLowerCase() === cleanUsername.toLowerCase()
+      );
+      if (usernameExists) {
+        return res.status(400).json({ message: "This username is already taken by another account." });
+      }
+      user.username = cleanUsername;
+    }
+  }
+
+  // Security: Prevent unauthorized email reassignment & privilege escalation
+  if (email && typeof email === "string" && email.includes("@")) {
+    const cleanEmail = email.trim().toLowerCase();
+    if (cleanEmail !== user.email.toLowerCase()) {
+      // 1. Prevent standard users from setting their email to the reserved owner email
+      if (OWNER_EMAIL && cleanEmail === OWNER_EMAIL && user.role !== "OWNER") {
+        return res.status(403).json({
+          message: "Forbidden: The platform owner email is reserved and cannot be assigned to standard accounts."
+        });
+      }
+
+      // 2. Prevent colliding with any existing account email
+      const emailExists = users.some(
+        u => u.id !== user.id && u.email && u.email.toLowerCase() === cleanEmail
+      );
+      if (emailExists) {
+        return res.status(400).json({
+          message: "This email address is already registered to another account."
+        });
+      }
+
+      user.email = cleanEmail;
+    }
+  }
+
+  // Explicitly ignore any role modification from client body - user.role is immutable
   if (bio !== undefined) user.bio = bio;
   if (profileImage !== undefined) user.profileImage = profileImage;
   if (theme) user.theme = theme;
@@ -261,7 +305,7 @@ authRouter.put("/me", requireAuth, (req: Request, res: Response) => {
     username: user.username,
     email: user.email,
     role: user.role,
-    isOwner: isOwner(user),
+    isOwner: user.role === "OWNER" || user.role === "ADMIN",
     bio: user.bio,
     theme: user.theme,
     themePreset: user.themePreset,

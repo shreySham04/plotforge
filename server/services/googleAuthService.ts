@@ -1,11 +1,38 @@
 import axios from "axios";
 import jwt from "jsonwebtoken";
+import fs from "fs";
+import path from "path";
 
 export interface GoogleVerifiedPayload {
   email: string;
   name: string;
   picture?: string;
   sub: string;
+}
+
+let cachedExpectedProjectId: string | null = null;
+
+export function getExpectedFirebaseProjectId(): string | null {
+  if (cachedExpectedProjectId) return cachedExpectedProjectId;
+
+  const envPid = (process.env.FIREBASE_PROJECT_ID || process.env.VITE_FIREBASE_PROJECT_ID || "").trim();
+  if (envPid) {
+    cachedExpectedProjectId = envPid;
+    return cachedExpectedProjectId;
+  }
+
+  try {
+    const configPath = path.resolve(process.cwd(), "firebase-applet-config.json");
+    if (fs.existsSync(configPath)) {
+      const raw = JSON.parse(fs.readFileSync(configPath, "utf8"));
+      if (raw && raw.projectId && typeof raw.projectId === "string") {
+        cachedExpectedProjectId = raw.projectId.trim();
+        return cachedExpectedProjectId;
+      }
+    }
+  } catch (_) {}
+
+  return null;
 }
 
 // In-memory cached Google x509 public certificates for Firebase ID token verification
@@ -117,11 +144,30 @@ export async function verifyGoogleToken(token: string): Promise<GoogleVerifiedPa
         payload?: any;
       } | null;
 
+      const expectedProjectId = getExpectedFirebaseProjectId();
+
       if (
         decodedComplete?.header?.kid &&
         decodedComplete.header.alg === "RS256" &&
         decodedComplete.payload?.iss?.startsWith("https://securetoken.google.com/")
       ) {
+        // Enforce expected Firebase Project ID and Audience binding
+        if (expectedProjectId) {
+          const expectedIssuer = `https://securetoken.google.com/${expectedProjectId}`;
+          if (decodedComplete.payload.iss !== expectedIssuer) {
+            console.warn(
+              `Firebase token rejected: issuer mismatch (expected ${expectedIssuer}, received ${decodedComplete.payload.iss})`
+            );
+            return null;
+          }
+          if (decodedComplete.payload.aud !== expectedProjectId) {
+            console.warn(
+              `Firebase token rejected: audience mismatch (expected ${expectedProjectId}, received ${decodedComplete.payload.aud})`
+            );
+            return null;
+          }
+        }
+
         const certs = await getGooglePublicCerts();
         const cert = certs[decodedComplete.header.kid];
 
@@ -130,10 +176,16 @@ export async function verifyGoogleToken(token: string): Promise<GoogleVerifiedPa
           return null;
         }
 
-        // Verify cryptographic signature with Google's public certificate
-        const verifiedPayload = jwt.verify(cleanToken, cert, {
+        const verifyOptions: jwt.VerifyOptions = {
           algorithms: ["RS256"]
-        }) as any;
+        };
+        if (expectedProjectId) {
+          verifyOptions.audience = expectedProjectId;
+          verifyOptions.issuer = `https://securetoken.google.com/${expectedProjectId}`;
+        }
+
+        // Verify cryptographic signature with Google's public certificate
+        const verifiedPayload = jwt.verify(cleanToken, cert, verifyOptions) as any;
 
         if (verifiedPayload && verifiedPayload.email) {
           if (verifiedPayload.email_verified === false) {
