@@ -220,7 +220,7 @@ export default function ReviewsPage() {
                   </div>
                 </div>
 
-                {(r.isMine || user?.isOwner || user?.email?.toLowerCase() === "shreyansh.ssharma@gmail.com") && (
+                {(r.isMine || user?.isOwner || user?.role === "OWNER" || user?.role === "ADMIN") && (
                   <div className="pt-2 mt-3 border-t border-slate-800/80 flex justify-end">
                     <button
                       onClick={() => handleDelete(r.id)}

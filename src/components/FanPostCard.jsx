@@ -13,7 +13,8 @@ export default function FanPostCard({ post, onDelete }) {
 
   const canDelete =
     user?.isOwner ||
-    user?.email?.toLowerCase() === "shreyansh.ssharma@gmail.com" ||
+    user?.role === "OWNER" ||
+    user?.role === "ADMIN" ||
     post.isMine ||
     post.authorUsername === user?.username ||
     post.author === user?.username;

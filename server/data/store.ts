@@ -54,19 +54,43 @@ export const users: User[] = [
     bio: "Fantasy novelist weaving epic tales of mystery and wonder.",
     profileImage: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80",
     createdAt: new Date().toISOString()
-  },
-  {
-    id: 99,
-    username: "shreyansh_owner",
-    email: "shreyansh.ssharma@gmail.com",
-    // Secure default hash for the seeded platform owner account (never empty password!)
-    passwordHash: bcrypt.hashSync("PlotForgeOwner#2026", 10),
-    role: "OWNER",
-    bio: "Platform Owner & Super Administrator",
-    profileImage: "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150&auto=format&fit=crop&q=80",
-    createdAt: new Date().toISOString()
   }
 ];
+
+// Bootstrap the platform owner strictly from environment variables without hardcoded credentials
+export function bootstrapOwnerFromEnv() {
+  const envOwnerEmail = (process.env.OWNER_EMAIL || "").trim().toLowerCase();
+  if (!envOwnerEmail) return;
+
+  const existing = users.find(u => u.email && u.email.toLowerCase() === envOwnerEmail);
+  const ownerPassword = process.env.OWNER_PASSWORD?.trim();
+  const passwordHash = ownerPassword ? bcrypt.hashSync(ownerPassword, 10) : "";
+
+  if (existing) {
+    existing.role = "OWNER";
+    if (ownerPassword) {
+      existing.passwordHash = passwordHash;
+    }
+  } else {
+    const ownerUsername =
+      process.env.OWNER_USERNAME?.trim() ||
+      envOwnerEmail.split("@")[0].replace(/[^a-z0-9_]/gi, "") ||
+      "admin";
+    users.push({
+      id: nextUserId(),
+      username: ownerUsername,
+      email: envOwnerEmail,
+      passwordHash,
+      role: "OWNER",
+      bio: "Platform Owner & Super Administrator",
+      profileImage: `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(ownerUsername)}`,
+      createdAt: new Date().toISOString()
+    });
+  }
+}
+
+// Initial bootstrap check
+bootstrapOwnerFromEnv();
 
 export const projects: Project[] = [
   {
@@ -269,6 +293,9 @@ export function loadStoreFromDisk() {
         comments.push(...loadedComments);
       }
     }
+
+    // Re-verify owner bootstrapping post-disk load
+    bootstrapOwnerFromEnv();
   } catch (err: any) {
     console.warn("Notice: Initial store load:", err?.message);
   }

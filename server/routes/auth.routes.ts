@@ -272,7 +272,7 @@ authRouter.put("/me", requireAuth, (req: Request, res: Response) => {
 });
 
 // ==========================================
-// 5. SECURE PASSWORD RESET (Token-based)
+// 5. SECURE PASSWORD RESET (Hashed Token-based)
 // ==========================================
 authRouter.post("/forgot-password", (req: Request, res: Response) => {
   const { email } = req.body;
@@ -285,20 +285,21 @@ authRouter.post("/forgot-password", (req: Request, res: Response) => {
   const user = users.find(u => u.email && u.email.toLowerCase() === cleanEmail);
 
   if (user) {
-    const resetToken = crypto.randomBytes(32).toString("hex");
+    const rawToken = crypto.randomBytes(32).toString("hex");
+    const tokenHash = crypto.createHash("sha256").update(rawToken).digest("hex");
     const expiresAt = Date.now() + 30 * 60 * 1000; // 30 minutes
-    passwordResetTokens.set(resetToken, { userId: user.id, expiresAt });
+    passwordResetTokens.set(tokenHash, { userId: user.id, expiresAt });
 
-    return res.json({
-      message: "If an account with this email exists, a password reset token has been generated.",
-      resetToken, // Returned for instant testing and local environments
-      expiresInMinutes: 30
-    });
+    // In local development, log the simulated dispatch link to console for debugging
+    if (process.env.NODE_ENV !== "production") {
+      console.log(`[AUTH] Password reset link generated for ${user.email}: token=${rawToken}`);
+    }
   }
 
-  // Consistent message to prevent email enumeration
+  // Consistent message to prevent email enumeration; NEVER return raw token through API response
   res.json({
-    message: "If an account with this email exists, a password reset token has been generated."
+    message: "If an account with this email exists, password reset instructions have been sent to your inbox.",
+    expiresInMinutes: 30
   });
 });
 
@@ -313,20 +314,23 @@ authRouter.post("/reset-password", (req: Request, res: Response) => {
     return res.status(400).json({ message: "Password must be at least 6 characters." });
   }
 
-  const record = passwordResetTokens.get(token);
+  const rawToken = String(token).trim();
+  const tokenHash = crypto.createHash("sha256").update(rawToken).digest("hex");
+
+  const record = passwordResetTokens.get(tokenHash);
   if (!record || Date.now() > record.expiresAt) {
-    passwordResetTokens.delete(token);
+    if (record) passwordResetTokens.delete(tokenHash);
     return res.status(400).json({ message: "Reset token is invalid or has expired. Please request a new one." });
   }
 
   const user = users.find(u => u.id === record.userId);
   if (!user) {
-    passwordResetTokens.delete(token);
+    passwordResetTokens.delete(tokenHash);
     return res.status(404).json({ message: "User account not found." });
   }
 
   user.passwordHash = bcrypt.hashSync(newPassword, 10);
-  passwordResetTokens.delete(token);
+  passwordResetTokens.delete(tokenHash);
   queuePersistence();
 
   res.json({ message: "Password successfully reset. You may now log in with your new password." });

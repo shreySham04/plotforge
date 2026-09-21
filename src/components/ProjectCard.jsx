@@ -10,7 +10,8 @@ export default function ProjectCard({ project, onDelete, onShare, onExportPdf, o
     project.accessRole === "OWNER" ||
     !project.accessRole ||
     user?.isOwner ||
-    user?.email?.toLowerCase() === "shreyansh.ssharma@gmail.com";
+    user?.role === "OWNER" ||
+    user?.role === "ADMIN";
 
   const projectGenres = getProjectGenres(project);
 

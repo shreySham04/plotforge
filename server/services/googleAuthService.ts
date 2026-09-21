@@ -1,10 +1,40 @@
 import axios from "axios";
+import jwt from "jsonwebtoken";
 
 export interface GoogleVerifiedPayload {
   email: string;
   name: string;
   picture?: string;
   sub: string;
+}
+
+// In-memory cached Google x509 public certificates for Firebase ID token verification
+let googleCertCache: { certs: Record<string, string>; expiresAt: number } | null = null;
+
+async function getGooglePublicCerts(): Promise<Record<string, string>> {
+  const now = Date.now();
+  if (googleCertCache && googleCertCache.expiresAt > now) {
+    return googleCertCache.certs;
+  }
+
+  try {
+    const res = await axios.get<Record<string, string>>(
+      "https://www.googleapis.com/robot/v1/metadata/x509/securetoken@system.gserviceaccount.com",
+      { timeout: 5000 }
+    );
+    if (res.data && typeof res.data === "object") {
+      // Cache certs for 1 hour
+      googleCertCache = {
+        certs: res.data,
+        expiresAt: now + 60 * 60 * 1000
+      };
+      return res.data;
+    }
+  } catch (err: any) {
+    console.warn("Notice: Failed to fetch Google x509 certs for Firebase ID token verification:", err?.message);
+  }
+
+  return googleCertCache?.certs || {};
 }
 
 export async function verifyGoogleToken(token: string): Promise<GoogleVerifiedPayload | null> {
@@ -79,36 +109,50 @@ export async function verifyGoogleToken(token: string): Promise<GoogleVerifiedPa
     }
   }
 
-  // 3. Try Firebase ID Token (JWT with securetoken.google.com)
+  // 3. Try Firebase ID Token (Cryptographically verified against Google's public x509 certificates)
   try {
     if (cleanToken.split(".").length === 3) {
-      const parts = cleanToken.split(".");
-      const payload = JSON.parse(Buffer.from(parts[1], "base64url").toString("utf8"));
+      const decodedComplete = jwt.decode(cleanToken, { complete: true }) as {
+        header?: { alg?: string; kid?: string };
+        payload?: any;
+      } | null;
+
       if (
-        payload &&
-        payload.iss &&
-        payload.iss.startsWith("https://securetoken.google.com/") &&
-        payload.email
+        decodedComplete?.header?.kid &&
+        decodedComplete.header.alg === "RS256" &&
+        decodedComplete.payload?.iss?.startsWith("https://securetoken.google.com/")
       ) {
-        const nowSec = Math.floor(Date.now() / 1000);
-        if (payload.exp && payload.exp < nowSec) {
-          console.warn("Firebase token is expired");
+        const certs = await getGooglePublicCerts();
+        const cert = certs[decodedComplete.header.kid];
+
+        if (!cert) {
+          console.warn("Firebase token rejected: unknown kid in Google public certificates.");
           return null;
         }
-        if (payload.email_verified === false) {
-          console.warn("Firebase token email not verified");
-          return null;
+
+        // Verify cryptographic signature with Google's public certificate
+        const verifiedPayload = jwt.verify(cleanToken, cert, {
+          algorithms: ["RS256"]
+        }) as any;
+
+        if (verifiedPayload && verifiedPayload.email) {
+          if (verifiedPayload.email_verified === false) {
+            console.warn("Firebase token rejected: email is not verified.");
+            return null;
+          }
+
+          return {
+            email: verifiedPayload.email.toLowerCase(),
+            name: verifiedPayload.name || verifiedPayload.email.split("@")[0],
+            picture: verifiedPayload.picture,
+            sub: verifiedPayload.sub || verifiedPayload.user_id
+          };
         }
-        return {
-          email: payload.email.toLowerCase(),
-          name: payload.name || payload.email.split("@")[0],
-          picture: payload.picture,
-          sub: payload.sub || payload.user_id
-        };
       }
     }
   } catch (fbErr: any) {
-    // Ignore parse error
+    console.warn("Firebase token cryptographic signature verification failed:", fbErr?.message);
+    return null;
   }
 
   console.warn("Google token verification failed for provided token.");

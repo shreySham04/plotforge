@@ -106,7 +106,7 @@ export default function Navbar() {
                 }`}
               >
                 <span>{user.username || user.email}</span>
-                {(user.isOwner || user.email?.toLowerCase() === "shreyansh.ssharma@gmail.com") && (
+                {(user.isOwner || user.role === "OWNER") && (
                   <span className="rounded bg-amber-500/20 border border-amber-500/40 px-1.5 py-0.5 text-[10px] font-extrabold text-amber-300 flex items-center gap-0.5">
                     👑 Owner
                   </span>

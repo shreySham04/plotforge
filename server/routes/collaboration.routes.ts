@@ -183,6 +183,14 @@ collaborationRouter.post("/invitations/:id/respond", requireAuth, (req: Request,
 // ==========================================
 collaborationRouter.get("/projects/:projectId/collaborators", (req: Request, res: Response) => {
   const projId = parseInt(req.params.projectId, 10);
+  const project = projects.find(p => p.id === projId);
+  if (!project) return res.status(404).json({ message: "Project not found." });
+
+  const access = evaluateProjectAccess(project, req);
+  if (!access.allowed) {
+    return res.status(access.statusCode).json({ message: access.reason });
+  }
+
   const list = collaborators[projId] || [];
   res.json(list);
 });

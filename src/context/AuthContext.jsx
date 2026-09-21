@@ -21,8 +21,7 @@ async function fetchWithRetry(fn, retries = 2, delayMs = 2000) {
 
 function userFromAuthResponse(response) {
   if (!response) return null;
-  const emailLower = (response.email || "").toLowerCase();
-  const isOwner = emailLower === "shreyansh.ssharma@gmail.com" || response.role === "OWNER" || response.role === "ADMIN" || Boolean(response.isOwner);
+  const isOwner = response.role === "OWNER" || response.role === "ADMIN" || Boolean(response.isOwner);
   return {
     id: response.userId ?? response.id ?? null,
     username: response.username || "",

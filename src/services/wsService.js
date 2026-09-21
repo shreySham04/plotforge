@@ -8,9 +8,34 @@ function getWsUrl() {
 }
 const WS_URL = getWsUrl();
 
-export function createEditorSocket(projectId, onMessage) {
+export function createEditorSocket(projectId, onMessage, options = {}) {
+  const token =
+    options?.token ||
+    (typeof localStorage !== "undefined" ? localStorage.getItem("auth_token") : null);
+  const shareToken =
+    options?.shareToken ||
+    (typeof localStorage !== "undefined" ? localStorage.getItem("share_token") : null);
+
+  const connectHeaders = {};
+  let wsEndpoint = WS_URL;
+  const params = [];
+
+  if (token) {
+    connectHeaders.Authorization = `Bearer ${token}`;
+    params.push(`token=${encodeURIComponent(token)}`);
+  }
+  if (shareToken) {
+    connectHeaders["x-share-token"] = shareToken;
+    params.push(`shareToken=${encodeURIComponent(shareToken)}`);
+  }
+
+  if (params.length > 0) {
+    wsEndpoint += (wsEndpoint.includes("?") ? "&" : "?") + params.join("&");
+  }
+
   const client = new Client({
-    brokerURL: WS_URL,
+    brokerURL: wsEndpoint,
+    connectHeaders,
     reconnectDelay: 3000,
     onConnect: () => {
       client.subscribe(`/topic/project/${projectId}`, (message) => {

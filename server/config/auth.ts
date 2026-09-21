@@ -1,3 +1,4 @@
+import "dotenv/config";
 import crypto from "crypto";
 
 // Resolve JWT secret securely
@@ -16,8 +17,8 @@ if (!resolvedJwtSecret) {
 
 export const JWT_SECRET = resolvedJwtSecret;
 
-// Configurable Owner email
-export const OWNER_EMAIL = (process.env.OWNER_EMAIL || "shreyansh.ssharma@gmail.com").toLowerCase();
+// Configurable Owner email via environment variable (never hardcoded in repository)
+export const OWNER_EMAIL = (process.env.OWNER_EMAIL || "").trim().toLowerCase();
 
 // Token expiration
 export const JWT_EXPIRES_IN = "7d";

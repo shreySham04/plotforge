@@ -340,25 +340,107 @@ projectRouter.put("/:id/visibility", requireAuth, (req: Request, res: Response) 
 
 projectRouter.get("/:id/relations", (req: Request, res: Response) => {
   const projectId = parseInt(req.params.id, 10);
+  const project = projects.find(p => p.id === projectId);
+  if (!project) return res.status(404).json({ message: "Project not found." });
+
+  const access = evaluateProjectAccess(project, req);
+  if (!access.allowed) {
+    return res.status(access.statusCode).json({ message: access.reason });
+  }
+
   res.json(projectRelations[projectId] || []);
 });
 
 projectRouter.post("/:id/link", requireAuth, (req: Request, res: Response) => {
+  const authUser = req.user!;
   const projectId = parseInt(req.params.id, 10);
   const { relatedProjectId, relationType } = req.body;
   const relId = parseInt(relatedProjectId, 10);
 
+  const project = projects.find(p => p.id === projectId);
+  if (!project) return res.status(404).json({ message: "Project not found." });
+
+  const isAuthor =
+    project.authorId === authUser.id ||
+    project.authorUsername.toLowerCase() === authUser.username.toLowerCase();
+  const isEditor = (collaborators[projectId] || []).some(
+    c =>
+      c.role === "EDITOR" &&
+      ((c.userId && c.userId === authUser.id) ||
+        (c.username && c.username.toLowerCase() === authUser.username.toLowerCase()))
+  );
+
+  if (!isAuthor && !isEditor && !isOwner(authUser)) {
+    return res.status(403).json({
+      message: "Forbidden: You do not have permission to link or adapt this project."
+    });
+  }
+
+  const relatedProject = projects.find(p => p.id === relId);
+  if (!relatedProject) {
+    return res.status(404).json({ message: "Target project to link was not found." });
+  }
+
+  const relatedAccess = evaluateProjectAccess(relatedProject, req);
+  if (!relatedAccess.allowed) {
+    return res.status(403).json({
+      message: "Forbidden: You do not have read permission for the target project to link."
+    });
+  }
+
   if (!projectRelations[projectId]) projectRelations[projectId] = [];
-  projectRelations[projectId].push({ relatedProjectId: relId, relationType: relationType || "ADAPTATION", linkedAt: new Date().toISOString() });
+  projectRelations[projectId].push({
+    relatedProjectId: relId,
+    relationType: relationType || "ADAPTATION",
+    linkedAt: new Date().toISOString()
+  });
+  queuePersistence();
   res.json({ message: "Projects linked successfully", relations: projectRelations[projectId] });
 });
 
 projectRouter.post("/:id/link-story/:storyId", requireAuth, (req: Request, res: Response) => {
+  const authUser = req.user!;
   const scriptId = parseInt(req.params.id, 10);
   const storyId = parseInt(req.params.storyId, 10);
 
+  const scriptProject = projects.find(p => p.id === scriptId);
+  if (!scriptProject) return res.status(404).json({ message: "Script project not found." });
+
+  const isAuthor =
+    scriptProject.authorId === authUser.id ||
+    scriptProject.authorUsername.toLowerCase() === authUser.username.toLowerCase();
+  const isEditor = (collaborators[scriptId] || []).some(
+    c =>
+      c.role === "EDITOR" &&
+      ((c.userId && c.userId === authUser.id) ||
+        (c.username && c.username.toLowerCase() === authUser.username.toLowerCase()))
+  );
+
+  if (!isAuthor && !isEditor && !isOwner(authUser)) {
+    return res.status(403).json({
+      message: "Forbidden: You do not have permission to link stories to this script."
+    });
+  }
+
+  const storyProject = projects.find(p => p.id === storyId);
+  if (!storyProject) {
+    return res.status(404).json({ message: "Story source project not found." });
+  }
+
+  const storyAccess = evaluateProjectAccess(storyProject, req);
+  if (!storyAccess.allowed) {
+    return res.status(403).json({
+      message: "Forbidden: You do not have read permission for the story project."
+    });
+  }
+
   if (!projectRelations[scriptId]) projectRelations[scriptId] = [];
-  projectRelations[scriptId].push({ relatedProjectId: storyId, relationType: "STORY_SOURCE", linkedAt: new Date().toISOString() });
+  projectRelations[scriptId].push({
+    relatedProjectId: storyId,
+    relationType: "STORY_SOURCE",
+    linkedAt: new Date().toISOString()
+  });
+  queuePersistence();
   res.json({ message: "Story linked to script successfully" });
 });
 

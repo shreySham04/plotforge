@@ -296,7 +296,7 @@ export default function FanConceptPage() {
                       ))}
                     </div>
 
-                    {(c.isMine || c.authorUsername === user?.username || c.author === user?.username || user?.isOwner || user?.email?.toLowerCase() === "shreyansh.ssharma@gmail.com") && (
+                    {(c.isMine || c.authorUsername === user?.username || c.author === user?.username || user?.isOwner || user?.role === "OWNER" || user?.role === "ADMIN") && (
                       <button
                         onClick={() => handleDeleteConcept(c.id)}
                         className="text-[10px] font-bold text-rose-400 hover:text-rose-300 hover:underline"

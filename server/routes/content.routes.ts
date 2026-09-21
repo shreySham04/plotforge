@@ -117,6 +117,14 @@ contentRouter.put("/:projectId", requireAuth, (req: Request, res: Response) => {
 // ==========================================
 contentRouter.get("/:projectId/history", (req: Request, res: Response) => {
   const projectId = parseInt(req.params.projectId, 10);
+  const project = projects.find(p => p.id === projectId);
+  if (!project) return res.status(404).json({ message: "Project not found." });
+
+  const access = evaluateProjectAccess(project, req);
+  if (!access.allowed) {
+    return res.status(access.statusCode).json({ message: access.reason });
+  }
+
   const history = versionHistories[projectId] || [];
   res.json({ content: history, totalElements: history.length, totalPages: 1 });
 });

@@ -193,4 +193,50 @@ describe("PlotForge v2: Integration Authorization Matrix", () => {
     assert.equal(verifyAttempt("", "  "), false);
     assert.equal(verifyAttempt("valid-id-token", undefined), true);
   });
+
+  test("11. Private project history endpoint requires authorization", () => {
+    // Unauthenticated user requesting history
+    const anonReq = { query: {}, headers: {} } as any;
+    const anonAccess = evaluateProjectAccess(privateProject, anonReq);
+    assert.equal(anonAccess.allowed, false);
+    assert.equal(anonAccess.statusCode, 401);
+
+    // Unauthorized user Bob requesting history
+    const bobReq = { query: {}, headers: { authorization: `Bearer ${tokenBob}` } } as any;
+    const bobAccess = evaluateProjectAccess(privateProject, bobReq);
+    assert.equal(bobAccess.allowed, false);
+    assert.equal(bobAccess.statusCode, 403);
+
+    // Authorized author Alice requesting history
+    const aliceReq = { query: {}, headers: { authorization: `Bearer ${tokenAlice}` } } as any;
+    const aliceAccess = evaluateProjectAccess(privateProject, aliceReq);
+    assert.equal(aliceAccess.allowed, true);
+  });
+
+  test("12. Private project collaborator list requires authorization", () => {
+    const unauthReq = { query: {}, headers: { authorization: `Bearer ${tokenBob}` } } as any;
+    const access = evaluateProjectAccess(privateProject, unauthReq);
+    assert.equal(access.allowed, false);
+    assert.equal(access.statusCode, 403);
+
+    const ownerReq = { query: {}, headers: { authorization: `Bearer ${tokenOwner}` } } as any;
+    const ownerAccess = evaluateProjectAccess(privateProject, ownerReq);
+    assert.equal(ownerAccess.allowed, true);
+  });
+
+  test("13. Project linking and relation creation requires author, editor or owner permission", () => {
+    const isAuthorizedToLink = (
+      proj: Project,
+      user: { id: number; username: string; role: string }
+    ) => {
+      if (user.role === "OWNER") return true;
+      if (proj.authorId === user.id || proj.authorUsername.toLowerCase() === user.username.toLowerCase()) return true;
+      const collabs = collaborators[proj.id] || [];
+      return collabs.some(c => c.userId === user.id && c.role === "EDITOR");
+    };
+
+    assert.equal(isAuthorizedToLink(privateProject, userAlice), true);
+    assert.equal(isAuthorizedToLink(privateProject, userBob), false);
+    assert.equal(isAuthorizedToLink(privateProject, userOwner), true);
+  });
 });
