@@ -33,6 +33,15 @@ let reviewIdCounter = 100;
 let fanPostIdCounter = 100;
 let fanConceptIdCounter = 100;
 
+// Generate unique IDs (declared early so bootstrapping and seeding never encounter TDZ ReferenceError)
+export const nextUserId = () => userIdCounter++;
+export const nextProjectId = () => projectIdCounter++;
+export const nextCommentId = () => commentIdCounter++;
+export const nextInvitationId = () => invitationIdCounter++;
+export const nextReviewId = () => reviewIdCounter++;
+export const nextFanPostId = () => fanPostIdCounter++;
+export const nextFanConceptId = () => fanConceptIdCounter++;
+
 // In-memory typed collections
 export const users: User[] = [
   {
@@ -88,9 +97,6 @@ export function bootstrapOwnerFromEnv() {
     });
   }
 }
-
-// Initial bootstrap check
-bootstrapOwnerFromEnv();
 
 export const projects: Project[] = [
   {
@@ -301,11 +307,5 @@ export function loadStoreFromDisk() {
   }
 }
 
-// Generate unique IDs
-export const nextUserId = () => userIdCounter++;
-export const nextProjectId = () => projectIdCounter++;
-export const nextCommentId = () => commentIdCounter++;
-export const nextInvitationId = () => invitationIdCounter++;
-export const nextReviewId = () => reviewIdCounter++;
-export const nextFanPostId = () => fanPostIdCounter++;
-export const nextFanConceptId = () => fanConceptIdCounter++;
+// Initial bootstrap execution now that all store collections, counters, and ID generators are initialized
+bootstrapOwnerFromEnv();

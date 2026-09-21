@@ -85,4 +85,18 @@ Prepare the hyperdrive core now!
     assert.equal(matches[0].trim(), "EXT. SPACESHIP HANGAR - NIGHT");
     assert.equal(matches[1].trim(), "INT. COCKPIT - CONTINUOUS");
   });
+
+  test("Owner bootstrap functions seamlessly with nextUserId without ReferenceError", async () => {
+    const { bootstrapOwnerFromEnv, users, nextUserId } = await import("../server/data/store.js");
+
+    // Ensure nextUserId is callable directly
+    assert.equal(typeof nextUserId, "function");
+    const testId = nextUserId();
+    assert.ok(testId > 0);
+
+    // Bootstrap is callable without TDZ ReferenceError
+    assert.doesNotThrow(() => {
+      bootstrapOwnerFromEnv();
+    });
+  });
 });
