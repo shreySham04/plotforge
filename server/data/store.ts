@@ -212,6 +212,9 @@ export function queuePersistence() {
 
   if (saveTimeout) clearTimeout(saveTimeout);
   saveTimeout = setTimeout(flushPersistenceQueue, 300);
+  if (saveTimeout && typeof (saveTimeout as any).unref === "function") {
+    (saveTimeout as any).unref();
+  }
 }
 
 async function flushPersistenceQueue() {

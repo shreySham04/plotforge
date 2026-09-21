@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { MOVIE_SLIDES } from "../data/slides";
 import axios from "axios";
+import apiClient from "../services/axios";
 
 function shuffleArray(array) {
   const arr = [...array];
@@ -99,7 +100,7 @@ export default function AuthMovieBackdrop({ activeSlide, setActiveSlide, childre
         const genres = ["Sci-Fi", "Romance", "Fantasy", "Crime", "Thriller", "Cyberpunk", "Drama"];
         const randomGenre = genres[Math.floor(Math.random() * genres.length)];
         const savedKey = localStorage.getItem("plotforge_gemini_api_key");
-        const res = await axios.post("/api/agent/slides/generate", {
+        const res = await apiClient.post("/agent/slides/generate", {
           genre: randomGenre,
           apiKey: savedKey || undefined
         });

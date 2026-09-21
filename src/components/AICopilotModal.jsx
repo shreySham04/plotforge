@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import axios from "axios";
+import apiClient, { BASE_API } from "../services/axios";
 import { useAuth } from "../context/AuthContext";
 import { getPersonaById } from "../utils/aiPersonas";
 import MarkdownRenderer from "./MarkdownRenderer";
@@ -254,7 +254,7 @@ export default function AICopilotModal({
   // Fetch server config on open
   useEffect(() => {
     if (isOpen) {
-      axios.get("/api/agent/copilot/config")
+      apiClient.get("/agent/copilot/config")
         .then((res) => {
           if (res.data?.defaultMaxChars) {
             setMaxChars(res.data.defaultMaxChars);
@@ -352,7 +352,7 @@ export default function AICopilotModal({
 
     try {
       const authToken = token || (typeof localStorage !== "undefined" ? localStorage.getItem("plotforge_auth_token") : "");
-      const response = await fetch("/api/agent/copilot/stream", {
+      const response = await fetch(`${BASE_API}/agent/copilot/stream`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -434,7 +434,7 @@ export default function AICopilotModal({
     } catch (err) {
       console.warn("Streaming failed, using fallback endpoint:", err);
       try {
-        const res = await axios.post("/api/agent/copilot/suggest", {
+        const res = await apiClient.post("/agent/copilot/suggest", {
           projectTitle,
           storyContent,
           scriptContent,
@@ -478,7 +478,7 @@ export default function AICopilotModal({
     setAppliedSuccess(false);
 
     try {
-      const res = await axios.post("/api/agent/copilot/sync-script", {
+      const res = await apiClient.post("/agent/copilot/sync-script", {
         projectTitle,
         storyContent,
         currentScriptContent: scriptContent,

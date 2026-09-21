@@ -4,7 +4,7 @@ import { clearStoredToken, getStoredToken } from "./authToken";
 const LOCAL_HTTP_PATTERN = /^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/i;
 const rawEnv = import.meta.env.VITE_API_BASE_URL;
 const API = (rawEnv && rawEnv.trim() !== "" ? rawEnv : "/api").replace(/\/+$/, "");
-const BASE_API = API.startsWith("http")
+export const BASE_API = API.startsWith("http")
   ? (LOCAL_HTTP_PATTERN.test(API) ? API : API.replace(/^http:\/\//i, "https://"))
   : (API.endsWith("/api") ? API : `${API}/api`);
 const MAX_RETRIES = 2;

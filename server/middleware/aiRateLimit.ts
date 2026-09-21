@@ -7,7 +7,7 @@ interface RateLimitRecord {
 const userRequestMap = new Map<string, RateLimitRecord>();
 
 // Clean up stale timestamps every 5 minutes to prevent memory leak
-setInterval(() => {
+const cleanupInterval = setInterval(() => {
   const cutoff = Date.now() - 60_000;
   for (const [key, record] of userRequestMap.entries()) {
     record.timestamps = record.timestamps.filter(t => t > cutoff);
@@ -16,6 +16,10 @@ setInterval(() => {
     }
   }
 }, 5 * 60_000);
+
+if (cleanupInterval && typeof (cleanupInterval as any).unref === "function") {
+  (cleanupInterval as any).unref();
+}
 
 const MAX_REQUESTS_PER_MINUTE = 20;
 const WINDOW_MS = 60_000;
