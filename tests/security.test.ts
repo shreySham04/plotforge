@@ -1,6 +1,7 @@
 import { test, describe } from "node:test";
 import assert from "node:assert/strict";
 import crypto from "crypto";
+import fs from "node:fs";
 
 describe("PlotForge v2: Storage, Tokens & Authorization", () => {
   test("Cryptographic share tokens have high entropy (256-bit hex)", () => {
@@ -48,6 +49,18 @@ describe("PlotForge v2: Storage, Tokens & Authorization", () => {
 
     const verified = await verifyGoogleToken(forgedToken);
     assert.equal(verified, null, "Forged token without verified signature from Google must be rejected");
+  });
+
+  test("Firebase applet config does not contain a committed live API key", async () => {
+    const configFileUrl = new URL("../firebase-applet-config.json", import.meta.url);
+    const raw = await fs.promises.readFile(configFileUrl, "utf8");
+    const config = JSON.parse(raw);
+    const apiKey = String(config?.apiKey || "").trim();
+
+    assert.ok(
+      apiKey === "" || !/^AIza[0-9A-Za-z_-]{20,}$/.test(apiKey),
+      "firebase-applet-config.json must not contain a live Firebase API key"
+    );
   });
 
   test("Password reset token hashing prevents plaintext token storage", () => {

@@ -2,8 +2,8 @@ import { initializeApp, getApps, getApp } from 'firebase/app';
 import { getAuth, GoogleAuthProvider } from 'firebase/auth';
 import rawConfig from '../../firebase-applet-config.json';
 
-// Support Vite environment variables (e.g. VITE_FIREBASE_API_KEY) with fallback
-const effectiveApiKey = import.meta.env.VITE_FIREBASE_API_KEY || rawConfig.apiKey || "";
+// Use only environment-provided API key to avoid committing live keys in repository config
+const effectiveApiKey = import.meta.env.VITE_FIREBASE_API_KEY || "";
 
 const firebaseConfig = {
   ...rawConfig,
