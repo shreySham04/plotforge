@@ -1,0 +1,2787 @@
+# PlotForge — Complete Codebase & Architecture Notes
+
+## 1. What PlotForge is
+
+**PlotForge** is a full-stack writing platform for:
+
+* Story writing
+* Screenplay writing
+* AI-assisted writing and review
+* Collaborative editing
+* Project version history
+* Prequel/sequel/story-source linking
+* Fan theories and fan concepts
+* Movie/TV metadata through TMDB
+* PDF/TXT export
+* Public/private sharing
+* User authentication and Google authentication
+
+### Overall architecture
+
+```text
+                    ┌─────────────────────┐
+                    │     React Frontend  │
+                    │     Vite + JSX      │
+                    └─────────┬───────────┘
+                              │
+                    REST API / WebSocket
+                              │
+                              ▼
+                    ┌─────────────────────┐
+                    │  Express Backend    │
+                    │     Node + TS       │
+                    └─────┬──────┬────────┘
+                          │      │
+              ┌───────────┘      └──────────────┐
+              ▼                                  ▼
+       ┌─────────────┐                   ┌──────────────┐
+       │ JSON Store  │                   │ External APIs│
+       │ /data/*.json│                   │ Gemini/TMDB  │
+       └─────────────┘                   └──────────────┘
+              │
+              ▼
+       Persistent application data
+
+       WebSocket path:
+       React ↔ STOMP-compatible WS server ↔ Express/store
+```
+
+---
+
+# 2. FRONTEND
+
+The frontend lives mainly inside:
+
+```text
+src/
+```
+
+It is built with:
+
+* React 18
+* Vite
+* React Router
+* Axios
+* Tailwind CSS
+* Lucide React
+* STOMP.js
+* Firebase client SDK
+
+---
+
+# 3. Frontend entry files
+
+## `src/main.jsx`
+
+### Purpose
+
+The actual React application entry point.
+
+### Responsibilities
+
+* Starts React.
+* Mounts the application into `index.html`.
+* Loads global CSS.
+* Wraps the application with required providers.
+
+### Think of it as
+
+```text
+Browser
+   ↓
+main.jsx
+   ↓
+React application
+```
+
+---
+
+## `src/App.jsx`
+
+### Purpose
+
+Main frontend routing/application shell.
+
+### Responsibilities
+
+* Defines application routes.
+* Connects pages to URLs.
+* Controls which pages are public/private.
+* Provides the overall application structure.
+
+Examples of application areas:
+
+```text
+/
+ /about
+ /login
+ /register
+ /dashboard
+ /stories
+ /scripts
+ /projects/:id
+ /fan-future
+ /reviews
+ /profile
+```
+
+---
+
+## `index.html`
+
+### Purpose
+
+The HTML entry document used by Vite.
+
+React is mounted into this page.
+
+---
+
+## `src/index.css`
+
+### Purpose
+
+Global styling.
+
+Contains:
+
+* Base styles
+* typography
+* animations
+* editor styling
+* application-wide visual rules
+* scrollbar/UI styling
+
+---
+
+# 4. Frontend Context / Global State
+
+## `src/context/AuthContext.jsx`
+
+### Purpose
+
+Central authentication state.
+
+It manages:
+
+* Current user
+* JWT token
+* Login
+* Registration state
+* Google login
+* `/me` bootstrap
+* Logout
+* Session restoration
+* Loading state
+
+### Flow
+
+```text
+Login
+ ↓
+authService
+ ↓
+Backend JWT
+ ↓
+authToken.js
+ ↓
+AuthContext
+ ↓
+Entire React application
+```
+
+It also retries `/me` because the backend may temporarily be unavailable.
+
+---
+
+## `src/context/ThemeContext.jsx`
+
+### Purpose
+
+Controls application appearance.
+
+Handles:
+
+* Dark/light theme state
+* Theme persistence
+* Theme presets
+* Accent colors
+
+---
+
+# 5. Frontend Components
+
+## `src/components/AICopilotModal.jsx`
+
+### Purpose
+
+Main AI interface.
+
+This is the large AI user interface where writers interact with PlotForge's AI assistant.
+
+It handles things such as:
+
+* Prompt input
+* Story/script context
+* AI persona selection
+* AI responses
+* Streaming responses
+* AI writing assistance
+* Review/generation workflows
+
+### Architecture
+
+```text
+AICopilotModal
+      ↓
+Frontend API service
+      ↓
+/api/agent/*
+      ↓
+Gemini backend
+```
+
+---
+
+## `src/components/AuthModal.jsx`
+
+Authentication modal UI.
+
+Used for authentication-related interactions such as:
+
+* Login
+* Register
+* authentication errors
+
+---
+
+## `src/components/AuthMovieBackdrop.jsx`
+
+Visual background used around authentication screens.
+
+It provides the cinematic/movie-style authentication experience.
+
+---
+
+## `src/components/CollaborationInvitationsCard.jsx`
+
+Displays received collaboration invitations.
+
+Handles:
+
+* Pending invitations
+* Accept
+* Reject/decline
+* Invitation status
+
+---
+
+## `src/components/FanEditor.jsx`
+
+Editor for creating/editing fan content.
+
+Used by the Fan Future/Fan Concept system.
+
+---
+
+## `src/components/FanPostCard.jsx`
+
+Displays a fan post.
+
+Used for:
+
+* fan content
+* engagement
+* author information
+* post presentation
+
+---
+
+## `src/components/Footer.jsx`
+
+Application footer.
+
+Pure presentation/UI.
+
+---
+
+## `src/components/GoogleAuthButton.jsx`
+
+Google authentication UI.
+
+It initiates Google authentication and passes the resulting identity/token to the backend authentication system.
+
+---
+
+## `src/components/Hero.jsx`
+
+Landing-page hero section.
+
+Provides the main cinematic introduction to PlotForge.
+
+---
+
+## `src/components/MarkdownRenderer.jsx`
+
+Renders Markdown-formatted content.
+
+Useful for:
+
+* formatted AI output
+* rich text-like content
+* generated descriptions
+* structured text
+
+Uses:
+
+* `react-markdown`
+* `remark-gfm`
+
+---
+
+## `src/components/MovieSearch.jsx`
+
+Movie/series search interface.
+
+It communicates with the TMDB-backed API.
+
+### Flow
+
+```text
+MovieSearch
+   ↓
+tmdbService
+   ↓
+/api/tmdb/*
+   ↓
+TMDB
+```
+
+This keeps the TMDB API key on the backend rather than exposing it in the browser.
+
+---
+
+## `src/components/Navbar.jsx`
+
+Main application navigation.
+
+Controls links to major areas such as:
+
+* Home
+* Stories
+* Scripts
+* Fan Future
+* About
+* Profile
+* authentication state
+
+---
+
+## `src/components/PlotForgeLogo.jsx`
+
+Reusable PlotForge logo component.
+
+---
+
+## `src/components/ProjectCard.jsx`
+
+Represents a project on dashboards/listing pages.
+
+Displays things such as:
+
+* title
+* type
+* genre
+* status
+* author
+* cover
+* project actions
+
+---
+
+## `src/components/ProtectedRoute.jsx`
+
+Frontend route guard.
+
+Used to prevent unauthenticated users from directly accessing protected frontend pages.
+
+Important:
+
+```text
+ProtectedRoute = UI protection
+Backend authorization = real security
+```
+
+The backend still independently verifies JWTs.
+
+---
+
+## `src/components/RelationBadge.jsx`
+
+Displays project relationship information.
+
+For example:
+
+```text
+Prequel
+Sequel
+Source Story
+```
+
+---
+
+## `src/components/ScriptEditor.jsx`
+
+Screenplay editor.
+
+Handles script-writing UI and screenplay-oriented formatting.
+
+---
+
+## `src/components/StoryEditor.jsx`
+
+Normal prose/story editor.
+
+Used for standard story writing.
+
+---
+
+## `src/components/SubjectTag.jsx`
+
+Small reusable UI element for tags/labels.
+
+---
+
+# 6. Frontend Pages
+
+## `src/pages/HomePage.jsx`
+
+Main landing/home experience.
+
+---
+
+## `src/pages/AboutPage.jsx`
+
+Explains PlotForge and its purpose/features.
+
+---
+
+## `src/pages/LoginPage.jsx`
+
+Login screen.
+
+Uses authentication services and AuthContext.
+
+---
+
+## `src/pages/RegisterPage.jsx`
+
+Registration page.
+
+Creates a normal WRITER account through the backend.
+
+---
+
+## `src/pages/ForgotPasswordPage.jsx`
+
+Starts the password-reset process.
+
+---
+
+## `src/pages/ResetPasswordPage.jsx`
+
+Processes the reset-password flow using a reset token.
+
+---
+
+## `src/pages/DashboardPage.jsx`
+
+Main authenticated user dashboard.
+
+Displays projects and user activity.
+
+---
+
+## `src/pages/StoriesPage.jsx`
+
+Story-project listing and story creation interface.
+
+---
+
+## `src/pages/ScriptsPage.jsx`
+
+Screenplay-project listing and script-related functionality.
+
+---
+
+## `src/pages/ProjectEditorPage.jsx`
+
+One of the most important frontend pages.
+
+This is the main project workspace.
+
+It connects:
+
+```text
+Project metadata
++
+Story editor
++
+Script editor
++
+AI
++
+Collaboration
++
+Version history
++
+Project relations
++
+Export
+```
+
+---
+
+## `src/pages/SharedProjectPage.jsx`
+
+Used when a user opens a project using a share token.
+
+```text
+/share/{token}
+       ↓
+backend
+       ↓
+project + content
+```
+
+---
+
+## `src/pages/FanFuturePage.jsx`
+
+Main fan-content section.
+
+Used for:
+
+* fan theories
+* future story ideas
+* fan posts
+* project-related discussions
+
+---
+
+## `src/pages/FanConceptPage.jsx`
+
+Fan concept-specific page.
+
+Used to create/view fan concepts.
+
+---
+
+## `src/pages/ReviewsPage.jsx`
+
+Displays project/review functionality.
+
+Used for:
+
+* ratings/reviews
+* review submission
+* review display
+
+---
+
+## `src/pages/ProfilePage.jsx`
+
+User profile/settings.
+
+Can manage:
+
+* username
+* email
+* profile information
+* theme
+* personalization
+* AI persona preferences
+
+---
+
+# 7. Frontend Services
+
+The frontend services are the API abstraction layer.
+
+Instead of writing Axios calls everywhere:
+
+```text
+Page
+ ↓
+Service
+ ↓
+Axios
+ ↓
+Backend
+```
+
+---
+
+## `src/services/api.js`
+
+Very small abstraction.
+
+It exports the configured Axios client.
+
+---
+
+## `src/services/axios.js`
+
+### Most important frontend networking file.
+
+Creates the Axios client.
+
+Handles:
+
+* API base URL
+* JWT Authorization header
+* retries
+* 401 handling
+* 403 handling
+* 400 handling
+* backend-unreachable errors
+* automatic redirect to login
+* request timeout
+
+### Authentication flow
+
+```text
+Stored JWT
+   ↓
+Axios interceptor
+   ↓
+Authorization: Bearer <JWT>
+   ↓
+Express
+```
+
+---
+
+## `src/services/authService.js`
+
+Authentication API wrapper.
+
+Handles calls for:
+
+* login
+* registration
+* Google login
+* current user
+* profile updates
+* password reset operations
+
+---
+
+## `src/services/authToken.js`
+
+JWT storage helper.
+
+Responsible for:
+
+* saving JWT
+* retrieving JWT
+* clearing JWT
+
+---
+
+## `src/services/contentService.js`
+
+Handles project content API operations.
+
+Used for:
+
+* story content
+* screenplay content
+* content updates
+
+---
+
+## `src/services/fanConceptService.js`
+
+API service for fan concepts.
+
+---
+
+## `src/services/fanFutureService.js`
+
+API service for:
+
+* fan posts
+* fan future data
+* related fan functionality
+
+---
+
+## `src/services/projectService.js`
+
+Main project API service.
+
+Handles:
+
+* project listing
+* project creation
+* project deletion
+* project retrieval
+* collaborators
+* invitations
+* share links
+* PDF export
+* TXT export
+* version history
+* restoring versions
+* shared-project access
+
+Example:
+
+```text
+ProjectEditorPage
+        ↓
+projectService
+        ↓
+/api/projects/*
+```
+
+---
+
+## `src/services/reviewService.js`
+
+Review/rating API service.
+
+---
+
+## `src/services/tmdbService.js`
+
+Frontend wrapper for TMDB-related API requests.
+
+The frontend does **not directly own the TMDB secret key**.
+
+---
+
+## `src/services/wsService.js`
+
+Frontend WebSocket abstraction.
+
+Handles real-time collaboration communication.
+
+Works together with:
+
+```text
+useWebSocket.js
+```
+
+and the backend STOMP-compatible WebSocket server.
+
+---
+
+# 8. Frontend Hooks
+
+## `src/hooks/useWebSocket.js`
+
+React hook around WebSocket collaboration.
+
+Used to:
+
+* connect
+* subscribe
+* receive updates
+* send edits/events
+* disconnect cleanly
+
+---
+
+# 9. Frontend Utility Files
+
+## `src/utils/aiPersonas.js`
+
+Defines available AI personas.
+
+These are the personalities/instructions used by the PlotForge AI assistant.
+
+Examples include different creative styles/personas.
+
+The file is primarily **configuration/prompt metadata**, not the AI model itself.
+
+---
+
+## `src/utils/data.js`
+
+Contains:
+
+```js
+safeArray()
+```
+
+It normalizes different API response formats into an array.
+
+For example:
+
+```text
+API returns array
+API returns {items: []}
+API returns {content: []}
+API returns {results: []}
+```
+
+The utility makes frontend code robust against these shapes.
+
+---
+
+## `src/utils/errors.js`
+
+Frontend error-handling utilities.
+
+Centralizes error extraction/formatting.
+
+---
+
+## `src/utils/genres.js`
+
+Static list/configuration of supported genres.
+
+Examples include:
+
+* Sci-Fi
+* Fantasy
+* Thriller
+* Romance
+* Drama
+* etc.
+
+---
+
+## `src/utils/screenplay.js`
+
+Screenplay-related formatting/helper functions.
+
+---
+
+## `src/utils/themePresets.js`
+
+Defines predefined visual theme configurations.
+
+Used with `ThemeContext`.
+
+---
+
+# 10. Frontend Static Data
+
+## `src/data/slides.js`
+
+Contains the cinematic landing-page movie slides.
+
+Each slide contains data such as:
+
+```text
+id
+genre
+quote
+movie
+character
+poster
+background image
+theme color
+```
+
+The images point to TMDB-hosted artwork.
+
+This is **static presentation data**, not application/user database data.
+
+---
+
+# 11. BACKEND
+
+The backend is:
+
+```text
+Node.js
++
+Express
++
+TypeScript
+```
+
+Main entry:
+
+```text
+server.ts
+```
+
+---
+
+# 12. `server.ts`
+
+This is the backend application entry point.
+
+It:
+
+* creates the Express application
+* creates the HTTP server
+* configures CORS
+* configures JSON/body parsing
+* loads persistent data
+* mounts API routers
+* initializes WebSocket support
+* serves Vite in development
+* serves static frontend in production
+* exposes health endpoint
+* exposes share endpoint
+* exposes logo customization endpoint
+
+### Backend architecture
+
+```text
+server.ts
+   │
+   ├── authRouter
+   ├── projectRouter
+   ├── contentRouter
+   ├── collaborationRouter
+   ├── socialRouter
+   ├── aiRouter
+   ├── tmdbRouter
+   └── adminRouter
+```
+
+---
+
+# 13. Backend Routes
+
+## `server/routes/auth.routes.ts`
+
+Authentication backend.
+
+Handles:
+
+* registration
+* login
+* Google authentication
+* current user
+* profile updates
+* password reset
+* identity/role handling
+
+### Security model
+
+Normal registration creates:
+
+```text
+WRITER
+```
+
+Owner privileges come from server-controlled role assignment.
+
+---
+
+## `server/routes/project.routes.ts`
+
+Core project API.
+
+Handles things such as:
+
+* create project
+* list projects
+* get project
+* delete project
+* project relations
+* share links
+* exports
+* version history
+* restoring versions
+* project-level authorization
+
+This is one of the main backend files.
+
+---
+
+## `server/routes/content.routes.ts`
+
+Handles project story/script content.
+
+Main responsibility:
+
+```text
+Project
+   ↓
+Story content
+Script content
+```
+
+Also enforces access rules before modifications.
+
+---
+
+## `server/routes/collaboration.routes.ts`
+
+Handles collaboration functionality:
+
+* invitations
+* accepting/declining invitations
+* collaborators
+* collaborator removal
+* collaboration-related access
+
+---
+
+## `server/routes/social.routes.ts`
+
+Handles social/community functionality.
+
+Includes things such as:
+
+* reviews
+* fan posts
+* fan concepts
+* engagement/upvote-style functionality
+
+---
+
+## `server/routes/ai.routes.ts`
+
+AI backend gateway.
+
+This is where frontend AI requests reach the server.
+
+Responsibilities include:
+
+* Gemini calls
+* AI generation
+* AI review
+* AI assistance
+* streamed AI output
+* prompt/context preparation
+* AI authentication
+* AI rate limiting
+* payload limits
+
+Architecture:
+
+```text
+React AI UI
+     ↓
+/api/agent/*
+     ↓
+ai.routes.ts
+     ↓
+Gemini API
+     ↓
+AI response
+     ↓
+React
+```
+
+---
+
+## `server/routes/tmdb.routes.ts`
+
+Backend TMDB proxy.
+
+Instead of:
+
+```text
+Browser → TMDB
+```
+
+PlotForge uses:
+
+```text
+Browser
+   ↓
+PlotForge backend
+   ↓
+TMDB
+```
+
+This protects the TMDB API key and centralizes TMDB requests.
+
+---
+
+## `server/routes/admin.routes.ts`
+
+Owner/admin-only management.
+
+Used for privileged platform operations.
+
+Protected using backend authorization.
+
+---
+
+# 14. Backend Middleware
+
+## `server/middleware/auth.ts`
+
+Core authentication/authorization middleware.
+
+Handles:
+
+* JWT verification
+* authenticated user extraction
+* owner/admin detection
+* protected route logic
+* role enforcement
+
+### Important security principle
+
+The frontend can display:
+
+```text
+isOwner
+role
+```
+
+but the backend is the actual authority.
+
+---
+
+## `server/middleware/aiRateLimit.ts`
+
+Protects AI endpoints from excessive usage.
+
+Responsibilities:
+
+* per-user/IP tracking
+* request windows
+* rate limiting
+* payload limits
+* timer lifecycle cleanup
+
+The timers were recently changed so the process can terminate cleanly.
+
+---
+
+# 15. Backend Configuration
+
+## `server/config/auth.ts`
+
+Central authentication configuration.
+
+Provides:
+
+* JWT secret
+* owner email
+* JWT expiration configuration
+
+The JWT secret is now:
+
+```text
+environment variable in production
+```
+
+rather than a hardcoded fallback secret.
+
+---
+
+# 16. Backend Services
+
+## `server/services/accessControl.ts`
+
+Central project authorization service.
+
+Determines whether someone can:
+
+* read a private project
+* edit a project
+* export it
+* access collaboration resources
+* use project-level operations
+
+The intent is to prevent authorization logic from being copied inconsistently across routes.
+
+---
+
+## `server/services/googleAuthService.ts`
+
+Google/Firebase authentication verification.
+
+Handles:
+
+* Google token verification
+* Firebase token verification
+* Google certificate retrieval
+* token signature validation
+* email verification
+* issuer/audience validation where applicable
+* extraction of authenticated Google identity
+
+Architecture:
+
+```text
+Google
+  ↓
+Google/Firebase token
+  ↓
+googleAuthService
+  ↓
+verified identity
+  ↓
+PlotForge JWT
+```
+
+---
+
+## `server/services/pdfService.ts`
+
+Generates actual PDF documents using PDFKit.
+
+The old fake/text-only PDF approach has been replaced with a real PDF generation service.
+
+---
+
+# 17. WebSocket / Real-Time Collaboration
+
+## `server/websocket/stompServer.ts`
+
+The backend WebSocket implementation.
+
+Uses:
+
+```text
+ws
+```
+
+and provides a lightweight STOMP-compatible broker.
+
+Handles:
+
+* WebSocket connections
+* JWT authentication
+* CONNECT
+* SUBSCRIBE
+* SEND
+* project topic authorization
+* collaboration event broadcasting
+* private-project access
+* share-token access
+
+### Collaboration architecture
+
+```text
+Writer A
+   ↓
+WebSocket
+   ↓
+PlotForge WebSocket Server
+   ↓
+Project Topic
+   ↓
+Writer B
+```
+
+It is not a full enterprise STOMP broker or CRDT system; it is a custom lightweight collaboration layer.
+
+---
+
+# 18. Backend Types
+
+## `server/types/index.ts`
+
+Central TypeScript data model definitions.
+
+Defines structures such as:
+
+```text
+User
+Project
+ProjectContent
+Collaborator
+Invitation
+ProjectComment
+Review
+FanPost
+FanConcept
+VersionHistoryEntry
+ShareTokenData
+```
+
+This gives the backend a shared shape for application data.
+
+---
+
+# 19. DATABASE / DATA LAYER
+
+This is the most important architecture point.
+
+## PlotForge's current runtime database
+
+The current project does **not** use MySQL as the live storage engine.
+
+The actual runtime persistence layer is:
+
+```text
+Node.js memory
+      +
+JSON files
+```
+
+---
+
+# 20. `server/data/store.ts`
+
+This is effectively the current application data layer.
+
+It:
+
+* defines in-memory collections
+* initializes seed data
+* generates IDs
+* bootstraps the owner
+* loads JSON data
+* writes JSON data
+* manages persistence
+
+---
+
+# 21. Actual persistent files
+
+`store.ts` uses the following files under:
+
+```text
+<data directory>/data/
+```
+
+### `users_db.json`
+
+Stores user records.
+
+Contains data such as:
+
+```text
+id
+username
+email
+passwordHash
+role
+bio
+profileImage
+createdAt
+```
+
+---
+
+### `projects_db.json`
+
+Stores projects.
+
+Contains things such as:
+
+```text
+id
+title
+description
+logline
+genre
+type
+status
+author
+visibility
+cover
+tags
+timestamps
+```
+
+---
+
+### `contents_db.json`
+
+Stores:
+
+```text
+storyContent
+scriptContent
+project content metadata
+```
+
+This allows story/script content to survive process restarts.
+
+---
+
+### `collaborators_db.json`
+
+Stores project collaboration relationships.
+
+Conceptually:
+
+```text
+Project
+ ↓
+Collaborator
+ ↓
+User
+ ↓
+Role/status
+```
+
+---
+
+### `invitations_db.json`
+
+Stores collaboration invitations.
+
+Used for:
+
+```text
+User A
+ ↓
+Invitation
+ ↓
+Project
+ ↓
+User B accepts/declines
+```
+
+---
+
+### `comments_db.json`
+
+Stores project comments.
+
+---
+
+# 22. Data that currently remains in memory
+
+Some structures are declared in `store.ts` but are not part of the JSON persistence queue:
+
+```text
+reviews
+fanPosts
+fanConcepts
+versionHistories
+projectRelations
+shareTokens
+passwordResetTokens
+```
+
+That means their current behavior is different from users/projects/content.
+
+For your architecture explanation, say:
+
+> "PlotForge currently uses a hybrid in-memory + file-backed JSON persistence layer."
+
+That is more accurate than simply saying "PlotForge has a database."
+
+---
+
+# 23. ID Generation
+
+`store.ts` maintains counters such as:
+
+```text
+userIdCounter
+projectIdCounter
+commentIdCounter
+invitationIdCounter
+reviewIdCounter
+fanPostIdCounter
+fanConceptIdCounter
+```
+
+Then functions generate IDs:
+
+```text
+nextUserId()
+nextProjectId()
+nextCommentId()
+...
+```
+
+This recently mattered because owner bootstrapping originally happened before the ID generator initialization. That Temporal Dead Zone problem was fixed by moving the generators above the bootstrap logic.
+
+---
+
+# 24. Owner Bootstrap
+
+`store.ts` also creates the owner account from environment variables.
+
+Relevant configuration:
+
+```text
+OWNER_EMAIL
+OWNER_PASSWORD
+OWNER_USERNAME
+```
+
+This prevents the platform owner from depending on a hardcoded privileged account inside the source code.
+
+---
+
+# 25. `docs/database-schema.sql`
+
+This is **not the active runtime database**.
+
+It documents a relational/MySQL-style version of the architecture.
+
+It describes tables such as:
+
+```text
+users
+projects
+contents
+collaborators
+content_versions
+```
+
+The file is useful for:
+
+* documentation
+* future migration to MySQL/PostgreSQL
+* explaining a relational data model
+* showing how the JSON model could map to SQL tables
+
+---
+
+# 26. Firebase files
+
+## `firebase-applet-config.json`
+
+Contains frontend Firebase configuration information used as configuration/fallback metadata.
+
+This is not storing PlotForge application projects.
+
+---
+
+## `firebase-blueprint.json`
+
+Firebase/project blueprint configuration.
+
+It is configuration metadata rather than the primary PlotForge database.
+
+---
+
+## `firestore.rules`
+
+Firestore security rules.
+
+Important distinction:
+
+> PlotForge's current Express backend does not use Firestore as its primary runtime project store.
+
+So these rules are not the equivalent of the authorization system in `auth.ts` + `accessControl.ts`.
+
+---
+
+# 27. AI ARCHITECTURE
+
+PlotForge's AI system uses:
+
+```text
+Google Gemini
++
+@google/genai
+```
+
+The backend AI gateway is:
+
+```text
+server/routes/ai.routes.ts
+```
+
+The frontend AI UI is:
+
+```text
+AICopilotModal.jsx
+```
+
+---
+
+# 28. AI frontend
+
+## `AICopilotModal.jsx`
+
+Responsible for the user-facing AI experience.
+
+The user can provide:
+
+```text
+story context
+script context
+prompt
+persona
+creative task
+```
+
+and receive generated AI output.
+
+---
+
+# 29. AI persona system
+
+## `src/utils/aiPersonas.js`
+
+Contains persona definitions.
+
+Instead of hardcoding all personality instructions inside UI components, personas are stored as reusable configuration.
+
+Conceptually:
+
+```text
+Selected Persona
+       ↓
+AI instruction
+       ↓
+AI backend
+       ↓
+Gemini
+```
+
+---
+
+# 30. AI backend
+
+## `server/routes/ai.routes.ts`
+
+Receives the AI request.
+
+It can:
+
+* authenticate the user
+* enforce AI rate limits
+* validate input
+* construct model prompts
+* call Gemini
+* stream output
+* return generated text
+
+---
+
+# 31. AI streaming
+
+PlotForge uses streaming for AI responses.
+
+Conceptually:
+
+```text
+User prompt
+     ↓
+Gemini
+     ↓
+token/chunk stream
+     ↓
+Express
+     ↓
+SSE
+     ↓
+React
+     ↓
+AI modal
+```
+
+Instead of waiting for the entire response, the UI can start displaying generated output while it arrives.
+
+---
+
+# 32. AI rate limiting
+
+`server/middleware/aiRateLimit.ts` limits AI usage.
+
+Why:
+
+```text
+AI API = expensive external resource
+```
+
+Without a limiter:
+
+```text
+user
+ ↓
+thousands of requests
+ ↓
+Gemini bill/API exhaustion
+```
+
+With rate limiting:
+
+```text
+user
+ ↓
+request window
+ ↓
+allowed requests
+ ↓
+then 429
+```
+
+---
+
+# 33. TMDB Integration
+
+PlotForge also uses TMDB.
+
+Files involved:
+
+```text
+src/components/MovieSearch.jsx
+src/services/tmdbService.js
+server/routes/tmdb.routes.ts
+```
+
+Flow:
+
+```text
+MovieSearch
+    ↓
+tmdbService
+    ↓
+Express /api/tmdb
+    ↓
+TMDB API
+    ↓
+Movie metadata
+    ↓
+Frontend
+```
+
+Used for things such as:
+
+* movie/series search
+* posters
+* backdrops
+* metadata
+* cast information
+* runtime/synopsis-related information
+* story inspiration/project metadata
+
+---
+
+# 34. AUTHENTICATION ARCHITECTURE
+
+PlotForge supports:
+
+### Normal authentication
+
+```text
+Email
++
+Password
+```
+
+Backend:
+
+```text
+bcrypt
++
+JWT
+```
+
+---
+
+### Google authentication
+
+```text
+Google/Firebase
+      ↓
+verified identity
+      ↓
+PlotForge backend
+      ↓
+PlotForge JWT
+```
+
+---
+
+# 35. JWT Architecture
+
+After successful login:
+
+```text
+Backend
+ ↓
+JWT
+ ↓
+Frontend stores token
+ ↓
+Axios interceptor
+ ↓
+Authorization: Bearer JWT
+```
+
+Backend:
+
+```text
+JWT
+ ↓
+auth middleware
+ ↓
+user identity
+ ↓
+role
+ ↓
+authorization
+```
+
+---
+
+# 36. Authorization model
+
+The platform uses roles such as:
+
+```text
+WRITER
+OWNER
+ADMIN
+```
+
+The backend determines privileged access based on the JWT role.
+
+The important security principle is:
+
+```text
+ROLE = authority
+EMAIL = identity
+```
+
+An email address by itself is not supposed to grant owner privileges.
+
+---
+
+# 37. PROJECT RELATION SYSTEM
+
+PlotForge supports relationships between projects.
+
+Conceptually:
+
+```text
+Project A
+   ↓
+Prequel
+   ↓
+Project B
+
+Project C
+   ↓
+Sequel
+   ↓
+Project A
+```
+
+The frontend:
+
+```text
+RelationBadge.jsx
+ProjectEditorPage
+```
+
+The backend:
+
+```text
+project.routes.ts
+```
+
+The in-memory structure:
+
+```text
+projectRelations
+```
+
+---
+
+# 38. COLLABORATION SYSTEM
+
+Main files:
+
+```text
+CollaborationInvitationsCard.jsx
+wsService.js
+useWebSocket.js
+collaboration.routes.ts
+stompServer.ts
+```
+
+There are two separate mechanisms:
+
+### Invitation layer
+
+Used to establish collaboration membership.
+
+```text
+Invite
+ ↓
+Invitation
+ ↓
+Accept
+ ↓
+Collaborator
+```
+
+### Real-time communication layer
+
+Used after collaboration access exists.
+
+```text
+Collaborator
+ ↓
+WebSocket
+ ↓
+Project topic
+ ↓
+Other collaborators
+```
+
+---
+
+# 39. VERSION HISTORY
+
+Frontend:
+
+```text
+projectService.js
+ProjectEditorPage
+```
+
+Backend:
+
+```text
+project.routes.ts
+store.ts
+```
+
+Model:
+
+```text
+Original content
+       ↓
+Edit
+       ↓
+Version
+       ↓
+Another edit
+       ↓
+Version
+```
+
+The system can retrieve and restore versions.
+
+---
+
+# 40. EXPORT SYSTEM
+
+## TXT export
+
+```text
+Project
+ ↓
+project.routes.ts
+ ↓
+TXT response
+ ↓
+Browser download
+```
+
+---
+
+## PDF export
+
+```text
+Project
+ ↓
+project.routes.ts
+ ↓
+pdfService.ts
+ ↓
+PDFKit
+ ↓
+PDF binary
+ ↓
+Browser download
+```
+
+Frontend download handling happens in:
+
+```text
+projectService.js
+```
+
+---
+
+# 41. SHARE LINK SYSTEM
+
+A project can generate a share token.
+
+Architecture:
+
+```text
+Project
+ ↓
+share token
+ ↓
+share URL
+ ↓
+SharedProjectPage
+ ↓
+backend validates token
+ ↓
+project content
+```
+
+The token data is currently held in:
+
+```text
+shareTokens
+```
+
+inside `store.ts`.
+
+---
+
+# 42. SOCIAL / FAN SYSTEM
+
+PlotForge is not only a writing editor.
+
+It also has:
+
+```text
+Fan Future
+Fan Concepts
+Fan Posts
+Reviews
+Engagement
+```
+
+Frontend:
+
+```text
+FanFuturePage
+FanConceptPage
+FanEditor
+FanPostCard
+ReviewsPage
+reviewService
+fanFutureService
+fanConceptService
+```
+
+Backend:
+
+```text
+social.routes.ts
+```
+
+---
+
+# 43. STATIC / VISUAL SYSTEM
+
+The cinematic design is built from:
+
+```text
+src/data/slides.js
+src/utils/themePresets.js
+src/context/ThemeContext.jsx
+src/components/Hero.jsx
+src/components/AuthMovieBackdrop.jsx
+src/components/PlotForgeLogo.jsx
+```
+
+These are responsible for the visual/brand layer rather than core business logic.
+
+---
+
+# 44. TESTING
+
+There are currently five test files.
+
+## `tests/auth.test.ts`
+
+Tests authentication behavior.
+
+Examples:
+
+* login behavior
+* JWT behavior
+* auth-related flows
+
+---
+
+## `tests/authorization.test.ts`
+
+Tests authorization rules.
+
+Examples:
+
+* user permissions
+* project ownership
+* role restrictions
+* privileged operations
+
+---
+
+## `tests/http_integration.test.ts`
+
+Tests actual HTTP endpoints.
+
+This is important because it goes beyond testing isolated helper functions.
+
+---
+
+## `tests/security.test.ts`
+
+Security-focused tests.
+
+Examples include:
+
+* forged token resistance
+* role/security validation
+* authentication edge cases
+
+---
+
+## `tests/websocket.test.ts`
+
+Tests WebSocket/STOMP authorization and collaboration behavior.
+
+---
+
+# 45. CURRENT TEST RESULT
+
+Your latest run:
+
+```text
+35 tests
+5 test suites
+5.26 seconds
+0 failures
+0 timeouts
+exit code 0
+```
+
+The timer/lifecycle changes in:
+
+```text
+aiRateLimit.ts
+store.ts
+```
+
+ensure background timers do not leave orphaned processes alive.
+
+So:
+
+```text
+Test logic
+     +
+Integration
+     +
+Security
+     +
+WebSocket
+     +
+Lifecycle cleanup
+```
+
+are currently passing.
+
+---
+
+# 46. BUILD / DEPENDENCY FILES
+
+## `package.json`
+
+Defines:
+
+* application dependencies
+* build scripts
+* test script
+* lint script
+* server startup
+
+Major technologies include:
+
+```text
+React
+Vite
+Express
+TypeScript
+Axios
+JWT
+bcrypt
+Gemini
+PDFKit
+WebSocket
+STOMP
+Firebase
+Tailwind
+```
+
+---
+
+## `package-lock.json`
+
+Locks exact dependency versions.
+
+Purpose:
+
+```text
+npm install
+```
+
+produces reproducible dependency versions.
+
+CI uses:
+
+```text
+npm ci
+```
+
+---
+
+## `tsconfig.json`
+
+TypeScript configuration.
+
+---
+
+## `vite.config.js`
+
+Vite frontend build configuration.
+
+---
+
+## `tailwind.config.js`
+
+Tailwind configuration.
+
+---
+
+## `postcss.config.js`
+
+PostCSS configuration used by Tailwind/CSS processing.
+
+---
+
+# 47. DEPLOYMENT FILES
+
+## `Dockerfile`
+
+Defines containerized backend/application deployment.
+
+General concept:
+
+```text
+Source
+ ↓
+npm install/build
+ ↓
+Node runtime
+ ↓
+PlotForge server
+```
+
+---
+
+## `vercel.json`
+
+Vercel configuration for the frontend build.
+
+Current setup is primarily:
+
+```text
+Vite build
+ ↓
+dist
+ ↓
+Vercel
+```
+
+---
+
+## `.env.example`
+
+Documents required environment variables.
+
+Examples include:
+
+```text
+JWT_SECRET
+OWNER_EMAIL
+OWNER_PASSWORD
+OWNER_USERNAME
+TMDB API configuration
+Gemini configuration
+Firebase configuration
+API base URL
+allowed origins
+```
+
+Actual secrets should exist only in deployment environment variables.
+
+---
+
+# 48. CI/CD
+
+## `.github/workflows/ci.yml`
+
+GitHub Actions workflow.
+
+The CI process verifies:
+
+```text
+npm ci
+ ↓
+npm run lint
+ ↓
+npm test
+ ↓
+npm run build
+```
+
+This gives a basic automated quality gate.
+
+---
+
+# 49. PUBLIC ASSETS
+
+## `public/logo.svg`
+
+Default PlotForge logo.
+
+Used when no customized logo is configured.
+
+---
+
+# 50. Runtime logo customization
+
+`server.ts` also exposes an owner-only logo customization mechanism.
+
+It uses:
+
+```text
+data/custom_logo_base64.txt
+```
+
+and can generate/update public logo files.
+
+So there are actually two logo states:
+
+```text
+Default logo
+     OR
+Owner-customized logo
+```
+
+---
+
+# 51. Documentation Files
+
+## `README.md`
+
+Main project documentation.
+
+Contains:
+
+* project explanation
+* feature overview
+* setup
+* architecture
+* API information
+* deployment information
+
+---
+
+## `DEPLOYMENT.md`
+
+Deployment-specific instructions.
+
+Explains how the application is expected to be deployed.
+
+---
+
+## `DECISIONS.md`
+
+Architecture/design decision record.
+
+Useful for explaining **why** certain implementation choices were made.
+
+---
+
+## `docs/api-examples.http`
+
+Example HTTP requests for testing API endpoints.
+
+Useful with tools such as IntelliJ/VS Code REST clients.
+
+---
+
+## `docs/frontend-routes.md`
+
+Documents frontend routes.
+
+---
+
+## `docs/run-instructions.md`
+
+Local development/run instructions.
+
+---
+
+## `docs/full-updated-code-batches.md`
+
+Large historical/reference document containing updated code batches.
+
+It is documentation/reference material, not a runtime dependency.
+
+---
+
+# 52. Old / Legacy Artifacts
+
+## `demo/mvnw`
+
+This belongs to the old Java/Spring Boot direction of the project.
+
+The current architecture is:
+
+```text
+Node.js
+Express
+TypeScript
+```
+
+not:
+
+```text
+Spring Boot
+Maven
+Java
+```
+
+So this should not be treated as part of the active PlotForge backend architecture.
+
+---
+
+# 53. End-to-End Request Example
+
+Suppose a user edits a screenplay.
+
+### Step 1 — UI
+
+```text
+ScriptEditor.jsx
+```
+
+captures the change.
+
+### Step 2 — Page
+
+```text
+ProjectEditorPage.jsx
+```
+
+decides when to save/send the change.
+
+### Step 3 — Service
+
+```text
+contentService.js
+```
+
+or WebSocket service handles communication.
+
+### Step 4 — Authentication
+
+Axios attaches:
+
+```text
+Authorization: Bearer JWT
+```
+
+### Step 5 — Backend
+
+```text
+content.routes.ts
+```
+
+receives the request.
+
+### Step 6 — Authorization
+
+```text
+auth.ts
+accessControl.ts
+```
+
+verify the user.
+
+### Step 7 — Data
+
+```text
+store.ts
+```
+
+updates the content.
+
+### Step 8 — Persistence
+
+```text
+contents_db.json
+```
+
+is updated.
+
+### Step 9 — Collaboration
+
+For a real-time edit:
+
+```text
+WebSocket
+ ↓
+stompServer.ts
+ ↓
+project topic
+ ↓
+other collaborators
+```
+
+---
+
+# 54. End-to-End AI Example
+
+A user asks:
+
+> "Rewrite this scene to increase tension."
+
+### Flow
+
+```text
+AICopilotModal.jsx
+       ↓
+AI service/API
+       ↓
+/api/agent/*
+       ↓
+auth.ts
+       ↓
+aiRateLimit.ts
+       ↓
+ai.routes.ts
+       ↓
+Gemini
+       ↓
+streamed response
+       ↓
+React AI modal
+```
+
+Persona instructions come from:
+
+```text
+src/utils/aiPersonas.js
+```
+
+---
+
+# 55. End-to-End Movie Search Example
+
+```text
+MovieSearch.jsx
+       ↓
+tmdbService.js
+       ↓
+/api/tmdb
+       ↓
+tmdb.routes.ts
+       ↓
+TMDB
+       ↓
+movie metadata
+       ↓
+MovieSearch.jsx
+```
+
+This avoids putting the TMDB secret directly in the browser.
+
+---
+
+# 56. End-to-End Authentication Example
+
+### Normal login
+
+```text
+LoginPage
+   ↓
+authService
+   ↓
+POST /api/auth/login
+   ↓
+bcrypt password verification
+   ↓
+JWT creation
+   ↓
+AuthContext
+   ↓
+authToken
+   ↓
+Axios
+```
+
+### Subsequent request
+
+```text
+Axios
+ ↓
+Authorization header
+ ↓
+JWT verification
+ ↓
+User
+ ↓
+Access control
+ ↓
+Endpoint
+```
+
+---
+
+# 57. Complete Technology Map
+
+## Frontend
+
+```text
+React 18
+Vite
+React Router
+Tailwind CSS
+Axios
+Lucide React
+STOMP.js
+Firebase client
+React Markdown
+Remark GFM
+```
+
+## Backend
+
+```text
+Node.js
+Express
+TypeScript
+JWT
+bcrypt
+WebSocket/ws
+PDFKit
+CORS
+dotenv
+```
+
+## AI
+
+```text
+Google Gemini
+@google/genai
+AI personas
+SSE streaming
+AI rate limiting
+```
+
+## External data
+
+```text
+TMDB
+Google/Firebase authentication
+```
+
+## Persistence
+
+```text
+JSON file persistence
+Node.js in-memory collections
+```
+
+## Testing
+
+```text
+Node test runner
+tsx
+HTTP integration testing
+security testing
+WebSocket testing
+authorization testing
+```
+
+## Deployment
+
+```text
+Vite production build
+Node server
+Docker
+Vercel frontend
+environment variables
+GitHub Actions
+```
+
+---
+
+# 58. The One-Line Explanation of Each Major Layer
+
+### Frontend
+
+> React is responsible for the user interface, editors, navigation, state, and communicating with the backend.
+
+### Backend
+
+> Express is responsible for APIs, authentication, authorization, business logic, external integrations, exports, and WebSocket communication.
+
+### Database/Data
+
+> PlotForge currently uses a hybrid in-memory and file-backed JSON persistence layer, while the SQL schema is a future/relational reference.
+
+### AI
+
+> Gemini is accessed through a protected backend AI gateway that performs authentication, rate limiting, prompt construction, and streaming.
+
+### WebSocket
+
+> A custom lightweight STOMP-compatible WebSocket server provides authorized real-time collaboration between project members.
+
+### Authentication
+
+> JWT handles PlotForge sessions, bcrypt handles passwords, and Google/Firebase verifies external identities.
+
+### TMDB
+
+> TMDB supplies movie/series metadata while the backend keeps the API integration behind the server.
+
+### Export
+
+> PDFKit generates PDFs on the backend and the frontend downloads the generated binary.
+
+### Testing
+
+> Five test suites validate authentication, authorization, security, HTTP integration, and WebSocket behavior.
+
+---
+
+# 59. Final Architecture Summary
+
+The cleanest way to explain PlotForge in an interview is:
+
+```text
+                    PLOTForge
+                       │
+        ┌──────────────┼──────────────┐
+        │              │              │
+    FRONTEND        BACKEND           AI
+        │              │              │
+      React          Express        Gemini
+      Vite           JWT            SSE
+      Axios          bcrypt         Personas
+      Tailwind       WebSocket      Rate limit
+        │              │
+        └───────┬──────┘
+                │
+             DATA LAYER
+                │
+         In-memory models
+                +
+          JSON persistence
+                │
+        ┌───────┴─────────┐
+        │                 │
+       TMDB          Auth providers
+                        │
+                    Google/Firebase
+```
+
+The architectural story is therefore:
+
+**React handles the experience → Express handles the application → ****`store.ts`**** handles current persistence → Gemini handles AI → TMDB handles media metadata → WebSockets handle collaboration → JWT/bcrypt/Google handle identity and security.**
