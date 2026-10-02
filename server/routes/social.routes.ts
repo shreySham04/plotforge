@@ -9,7 +9,7 @@ import {
   nextFanConceptId,
   queuePersistence
 } from "../data/store.js";
-import { requireAuth, isOwner } from "../middleware/auth.js";
+import { requireAuth, isOwner, getAuthUser } from "../middleware/auth.js";
 import { Review, FanPost, FanConcept } from "../types/index.js";
 
 export const socialRouter = Router();
@@ -18,6 +18,31 @@ export const socialRouter = Router();
 const userReviewLikes = new Map<number, Set<number>>();
 const userPostUpvotes = new Map<number, Set<number>>();
 const userConceptUpvotes = new Map<number, Set<number>>();
+
+// Helper to compute movie averages across reviews
+function getMovieStatsMap(reviewsList: Review[]) {
+  const map: Record<string, { sum: number; count: number; poster: string; title: string; genre: string }> = {};
+  for (const r of reviewsList) {
+    const rawTitle = (r.movieTitle || r.mediaTitle || "General Media").trim();
+    if (!rawTitle) continue;
+    const key = rawTitle.toLowerCase();
+    if (!map[key]) {
+      map[key] = {
+        title: rawTitle,
+        sum: 0,
+        count: 0,
+        poster: r.mediaPoster || r.poster || "",
+        genre: r.genre || "General"
+      };
+    }
+    map[key].sum += Number(r.rating) || 0;
+    map[key].count += 1;
+    if (!map[key].poster && (r.mediaPoster || r.poster)) {
+      map[key].poster = (r.mediaPoster || r.poster)!;
+    }
+  }
+  return map;
+}
 
 // Sliding-window rate limiter for engagement actions (max 30 per minute per user)
 const engagementTimestamps = new Map<number, number[]>();
@@ -40,21 +65,98 @@ function checkEngagementRateLimit(userId: number): boolean {
 }
 
 // ==========================================
-// 1. REVIEWS
+// 1. REVIEWS & MOVIE AVERAGES
 // ==========================================
 socialRouter.get("/reviews", (req: Request, res: Response) => {
-  res.json(reviews);
+  const authUser = getAuthUser(req);
+  const myOnly = String(req.query.myOnly || "").toLowerCase() === "true";
+  const movieFilter = typeof req.query.movie === "string" ? req.query.movie.trim().toLowerCase() : "";
+
+  // 1. Calculate overall movie averages across all stored community reviews
+  const statsMap = getMovieStatsMap(reviews);
+
+  // 2. Decorate reviews with calculated movie average, count, and user ownership
+  const decorated = reviews.map((r) => {
+    const key = (r.movieTitle || r.mediaTitle || "General Media").trim().toLowerCase();
+    const stats = statsMap[key];
+    const avg = stats && stats.count > 0 ? Number((stats.sum / stats.count).toFixed(1)) : Number(r.rating) || 5;
+    const count = stats ? stats.count : 1;
+
+    const isMine = authUser
+      ? (r.authorUsername?.toLowerCase() === authUser.username.toLowerCase() ||
+         r.authorEmail?.toLowerCase() === authUser.email.toLowerCase() ||
+         r.author?.toLowerCase() === authUser.username.toLowerCase())
+      : false;
+
+    return {
+      ...r,
+      movieTitle: r.movieTitle || r.mediaTitle || "General Media",
+      mediaTitle: r.mediaTitle || r.movieTitle || "General Media",
+      mediaPoster: r.mediaPoster || r.poster || "https://images.unsplash.com/photo-1536440136628-849c177e76a1?w=300",
+      poster: r.poster || r.mediaPoster || "https://images.unsplash.com/photo-1536440136628-849c177e76a1?w=300",
+      movieAverage: avg,
+      movieReviewCount: count,
+      isMine
+    };
+  });
+
+  // 3. Apply "Show my reviews only" filter
+  let result = decorated;
+  if (myOnly) {
+    if (!authUser) {
+      return res.json([]);
+    }
+    result = result.filter((r) => r.isMine);
+  }
+
+  // 4. Apply optional movie filter
+  if (movieFilter && movieFilter !== "all") {
+    result = result.filter(
+      (r) =>
+        r.movieTitle.toLowerCase() === movieFilter ||
+        r.mediaTitle?.toLowerCase() === movieFilter
+    );
+  }
+
+  res.json(result);
+});
+
+// Endpoint to fetch movie rating summaries & averages
+socialRouter.get("/reviews/movies", (_req: Request, res: Response) => {
+  const statsMap = getMovieStatsMap(reviews);
+  const movieSummaries = Object.values(statsMap).map((item) => ({
+    title: item.title,
+    average: Number((item.sum / item.count).toFixed(1)),
+    reviewCount: item.count,
+    poster: item.poster || "https://images.unsplash.com/photo-1536440136628-849c177e76a1?w=300",
+    genre: item.genre
+  }));
+
+  // Sort by highest average, then most reviews
+  movieSummaries.sort((a, b) => b.average - a.average || b.reviewCount - a.reviewCount);
+  res.json(movieSummaries);
 });
 
 socialRouter.post("/reviews", requireAuth, (req: Request, res: Response) => {
   const authUser = req.user!;
-  const { movieTitle, rating, content, genre } = req.body;
+  const { movieTitle, mediaTitle, reviewTitle, rating, content, genre, mediaPoster, poster } = req.body;
 
-  if (!movieTitle || !content) {
-    return res.status(400).json({ message: "Movie title and review content are required." });
+  const resolvedMovie = (mediaTitle || movieTitle || "").trim();
+  const resolvedContent = (content || "").trim();
+
+  if (!resolvedMovie) {
+    return res.status(400).json({ message: "Movie or series title is required." });
+  }
+  if (!resolvedContent) {
+    return res.status(400).json({ message: "Review critique content is required." });
   }
 
   const userRecord = users.find(u => u.id === authUser.id);
+  const parsedRating = Math.max(1, Math.min(10, Math.round(Number(rating) || 5)));
+  const resolvedPoster =
+    mediaPoster ||
+    poster ||
+    "https://images.unsplash.com/photo-1536440136628-849c177e76a1?w=300";
 
   const newReview: Review = {
     id: nextReviewId(),
@@ -62,9 +164,13 @@ socialRouter.post("/reviews", requireAuth, (req: Request, res: Response) => {
     authorUsername: authUser.username,
     authorEmail: authUser.email,
     authorImage: userRecord?.profileImage || `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(authUser.username)}`,
-    movieTitle: (movieTitle || "").trim(),
-    rating: Number(rating) || 5,
-    content: (content || "").trim(),
+    reviewTitle: (reviewTitle || `Critique of ${resolvedMovie}`).trim(),
+    movieTitle: resolvedMovie,
+    mediaTitle: resolvedMovie,
+    mediaPoster: resolvedPoster,
+    poster: resolvedPoster,
+    rating: parsedRating,
+    content: resolvedContent,
     genre: genre || "General",
     likes: 0,
     createdAt: new Date().toISOString()
@@ -72,7 +178,21 @@ socialRouter.post("/reviews", requireAuth, (req: Request, res: Response) => {
 
   reviews.unshift(newReview);
   queuePersistence();
-  res.status(201).json(newReview);
+
+  // Compute updated average for this movie across all reviews
+  const movieMatches = reviews.filter(
+    (r) => (r.movieTitle || r.mediaTitle || "").trim().toLowerCase() === resolvedMovie.toLowerCase()
+  );
+  const totalCount = movieMatches.length;
+  const sumRatings = movieMatches.reduce((acc, cur) => acc + (Number(cur.rating) || 0), 0);
+  const movieAvg = Number((sumRatings / totalCount).toFixed(1));
+
+  res.status(201).json({
+    ...newReview,
+    isMine: true,
+    movieAverage: movieAvg,
+    movieReviewCount: totalCount
+  });
 });
 
 socialRouter.post(["/reviews/:id/like", "/reviews/:id/likes"], requireAuth, (req: Request, res: Response) => {

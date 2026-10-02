@@ -27,6 +27,28 @@ function setCache<T>(key: string, value: T, ttlMs: number): void {
 // Curated cinematic reference titles
 const curatedMedia = [
   {
+    id: 698687,
+    title: "Transformers One",
+    name: "Transformers One",
+    poster_path: "https://images.unsplash.com/photo-1607604276583-eef5d076aa5f?w=400&auto=format&fit=crop&q=80",
+    overview: "The untold origin story of Optimus Prime and Megatron, better known as Orion Pax and D-16, who transformed Cybertron's fate forever.",
+    release_date: "2024-09-20",
+    first_air_date: "2024-09-20",
+    media_type: "movie",
+    vote_average: 8.1
+  },
+  {
+    id: 693134,
+    title: "Dune: Part Two",
+    name: "Dune: Part Two",
+    poster_path: "https://images.unsplash.com/photo-1509198397868-475647b2a1e5?w=400&auto=format&fit=crop&q=80",
+    overview: "Follow the mythic journey of Paul Atreides as he unites with Chani and the Fremen while seeking revenge against the conspirators who destroyed his family.",
+    release_date: "2024-03-01",
+    first_air_date: "2024-03-01",
+    media_type: "movie",
+    vote_average: 8.3
+  },
+  {
     id: 9991,
     title: "War 2",
     name: "War 2",
@@ -204,3 +226,31 @@ tmdbRouter.get("/tv/:id", async (req: Request, res: Response) => {
   setCache(cacheKey, fallback, 60 * 60 * 1000);
   res.json(fallback);
 });
+
+// TMDB Image Proxy with HTTP caching to bypass client-side ISP / DNS blocks
+tmdbRouter.get("/proxy-image", async (req: Request, res: Response) => {
+  const imageUrl = String(req.query.url || "").trim();
+  if (!imageUrl || !imageUrl.startsWith("https://image.tmdb.org/")) {
+    return res.status(400).json({ error: "Invalid image URL. Must originate from image.tmdb.org" });
+  }
+
+  try {
+    const upstreamRes = await axios.get(imageUrl, {
+      responseType: "arraybuffer",
+      timeout: 6000,
+      headers: {
+        "User-Agent": "PlotForge-Server/2.0",
+        Accept: "image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8"
+      }
+    });
+
+    const rawContentType = upstreamRes.headers["content-type"];
+    const contentType = typeof rawContentType === "string" ? rawContentType : "image/jpeg";
+    res.setHeader("Content-Type", contentType);
+    res.setHeader("Cache-Control", "public, max-age=604800, immutable");
+    return res.send(Buffer.from(upstreamRes.data));
+  } catch (err: any) {
+    return res.status(502).json({ error: "Upstream image fetch failed", message: err?.message });
+  }
+});
+

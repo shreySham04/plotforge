@@ -23,6 +23,7 @@ const CONTENTS_FILE = path.join(DATA_DIR, "contents_db.json");
 const COLLABORATORS_FILE = path.join(DATA_DIR, "collaborators_db.json");
 const INVITATIONS_FILE = path.join(DATA_DIR, "invitations_db.json");
 const COMMENTS_FILE = path.join(DATA_DIR, "comments_db.json");
+const REVIEWS_FILE = path.join(DATA_DIR, "reviews_db.json");
 
 // Auto-increment ID counters
 let userIdCounter = 100;
@@ -209,6 +210,7 @@ export function queuePersistence() {
   saveQueue.collaborators = true;
   saveQueue.invitations = true;
   saveQueue.comments = true;
+  saveQueue.reviews = true;
 
   if (saveTimeout) clearTimeout(saveTimeout);
   saveTimeout = setTimeout(flushPersistenceQueue, 300);
@@ -243,6 +245,10 @@ async function flushPersistenceQueue() {
     if (saveQueue.comments) {
       await fs.promises.writeFile(COMMENTS_FILE, JSON.stringify(comments, null, 2), "utf8");
       saveQueue.comments = false;
+    }
+    if (saveQueue.reviews) {
+      await fs.promises.writeFile(REVIEWS_FILE, JSON.stringify(reviews, null, 2), "utf8");
+      saveQueue.reviews = false;
     }
   } catch (err: any) {
     console.warn("Notice: Local persistence write:", err?.message);
@@ -300,6 +306,16 @@ export function loadStoreFromDisk() {
       if (Array.isArray(loadedComments)) {
         comments.length = 0;
         comments.push(...loadedComments);
+      }
+    }
+    if (fs.existsSync(REVIEWS_FILE)) {
+      const loadedReviews = JSON.parse(fs.readFileSync(REVIEWS_FILE, "utf8"));
+      if (Array.isArray(loadedReviews) && loadedReviews.length > 0) {
+        reviews.length = 0;
+        reviews.push(...loadedReviews);
+        for (const r of loadedReviews) {
+          if (r.id >= reviewIdCounter) reviewIdCounter = r.id + 1;
+        }
       }
     }
 

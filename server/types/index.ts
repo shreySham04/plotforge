@@ -103,12 +103,19 @@ export interface Review {
   authorUsername?: string;
   authorEmail?: string;
   authorImage?: string;
+  reviewTitle?: string;
   movieTitle: string;
+  mediaTitle?: string;
+  mediaPoster?: string;
+  poster?: string;
   rating: number;
   content: string;
   genre?: string;
   likes: number;
   createdAt: string;
+  movieAverage?: number;
+  movieReviewCount?: number;
+  isMine?: boolean;
 }
 
 export interface FanPost {

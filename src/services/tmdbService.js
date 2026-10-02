@@ -2,6 +2,8 @@ import apiClient from "./axios";
 
 // Popular TMDB fallback data for instant offline/mock rich search experience
 const FALLBACK_MEDIA = [
+  { id: 698687, title: "Transformers One", type: "MOVIE", year: 2024, poster: "https://images.unsplash.com/photo-1607604276583-eef5d076aa5f?w=400" },
+  { id: 693134, title: "Dune: Part Two", type: "MOVIE", year: 2024, poster: "https://images.unsplash.com/photo-1509198397868-475647b2a1e5?w=400" },
   { id: 550, title: "Fight Club", type: "MOVIE", year: 1999, poster: "https://images.unsplash.com/photo-1536440136628-849c177e76a1?w=300" },
   { id: 27205, title: "Inception", type: "MOVIE", year: 2010, poster: "https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=300" },
   { id: 157336, title: "Interstellar", type: "MOVIE", year: 2014, poster: "https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=300" },

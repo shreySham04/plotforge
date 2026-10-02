@@ -4,9 +4,11 @@ export const MOVIE_SLIDES = [
     genre: "Cyberpunk",
     quote: '"I\'ve seen things you people wouldn\'t believe."',
     movie: "Blade Runner 2049",
-    character: "Roy Batty",
+    character: "Roy Batty / Officer K",
     poster: "https://image.tmdb.org/t/p/w780/gajva2L0rPYkEWjzgFlBXCAVBE5.jpg",
-    bgImage: "https://image.tmdb.org/t/p/w1280/gNdLJU9TxrpGx4dkZidjys3fyy0.jpg",
+    tmdbBackdrop: "https://image.tmdb.org/t/p/w1280/gNdLJU9TxrpGx4dkZidjys3fyy0.jpg",
+    bgImage: "https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&w=1920&q=80",
+    fallbackBgImage: "https://images.unsplash.com/photo-1509198397868-475647b2a1e5?auto=format&fit=crop&w=1920&q=80",
     themeColor: "#06b6d4"
   },
   {
@@ -16,7 +18,9 @@ export const MOVIE_SLIDES = [
     movie: "RRR",
     character: "Bheem & Rama Raju",
     poster: "https://image.tmdb.org/t/p/w780/u0XUBNQWlOvrh0Gd97ARGpIkL0.jpg",
-    bgImage: "https://image.tmdb.org/t/p/w1280/i0Y0wP8H6SRgjr6QmuwbtQbS24D.jpg",
+    tmdbBackdrop: "https://image.tmdb.org/t/p/w1280/i0Y0wP8H6SRgjr6QmuwbtQbS24D.jpg",
+    bgImage: "https://images.unsplash.com/photo-1517824806704-9040b037703b?auto=format&fit=crop&w=1920&q=80",
+    fallbackBgImage: "https://images.unsplash.com/photo-1579546929518-9e396f3cc809?auto=format&fit=crop&w=1920&q=80",
     themeColor: "#ea580c"
   },
   {
@@ -26,7 +30,9 @@ export const MOVIE_SLIDES = [
     movie: "Dune: Part Two",
     character: "Paul Atreides",
     poster: "https://image.tmdb.org/t/p/w780/6izwz7rsy95ARzTR3poZ8H6c5pp.jpg",
-    bgImage: "https://image.tmdb.org/t/p/w1280/eZ239CUp1d6OryZEBPnO2n87gMG.jpg",
+    tmdbBackdrop: "https://image.tmdb.org/t/p/w1280/eZ239CUp1d6OryZEBPnO2n87gMG.jpg",
+    bgImage: "https://images.unsplash.com/photo-1509316975850-ff9c5deb0cd9?auto=format&fit=crop&w=1920&q=80",
+    fallbackBgImage: "https://images.unsplash.com/photo-1473580044384-7ba9967e16a0?auto=format&fit=crop&w=1920&q=80",
     themeColor: "#d97706"
   },
   {
@@ -36,7 +42,9 @@ export const MOVIE_SLIDES = [
     movie: "3 Idiots",
     character: "Rancho",
     poster: "https://image.tmdb.org/t/p/w780/66A9MqXOyVFCssoloscw79z8Tew.jpg",
-    bgImage: "https://image.tmdb.org/t/p/w1280/8gT3UKtglLVpu0YfccwbmXZ5Eis.jpg",
+    tmdbBackdrop: "https://image.tmdb.org/t/p/w1280/8gT3UKtglLVpu0YfccwbmXZ5Eis.jpg",
+    bgImage: "https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1920&q=80",
+    fallbackBgImage: "https://images.unsplash.com/photo-1519681393784-d120267933ba?auto=format&fit=crop&w=1920&q=80",
     themeColor: "#f59e0b"
   },
   {
@@ -46,7 +54,9 @@ export const MOVIE_SLIDES = [
     movie: "Interstellar",
     character: "Cooper",
     poster: "https://image.tmdb.org/t/p/w780/yQvGrMoipbRoddT0ZR8tPoR7NfX.jpg",
-    bgImage: "https://image.tmdb.org/t/p/w1280/5XNQBqnBwPA9yT0jZ0p3s8bbLh0.jpg",
+    tmdbBackdrop: "https://image.tmdb.org/t/p/w1280/5XNQBqnBwPA9yT0jZ0p3s8bbLh0.jpg",
+    bgImage: "https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&w=1920&q=80",
+    fallbackBgImage: "https://images.unsplash.com/photo-1446776811953-b23d57bd21aa?auto=format&fit=crop&w=1920&q=80",
     themeColor: "#0284c7"
   },
   {
@@ -56,7 +66,9 @@ export const MOVIE_SLIDES = [
     movie: "Tumbbad",
     character: "Vinayak",
     poster: "https://image.tmdb.org/t/p/w780/vzjZAKozbDplHWcQXbXo0APKxst.jpg",
-    bgImage: "https://image.tmdb.org/t/p/w1280/l0YKBu3LaehIFzBNjseLjx7MbaN.jpg",
+    tmdbBackdrop: "https://image.tmdb.org/t/p/w1280/l0YKBu3LaehIFzBNjseLjx7MbaN.jpg",
+    bgImage: "https://images.unsplash.com/photo-1534447677768-be436bb09401?auto=format&fit=crop&w=1920&q=80",
+    fallbackBgImage: "https://images.unsplash.com/photo-1514539079130-25950c84af65?auto=format&fit=crop&w=1920&q=80",
     themeColor: "#dc2626"
   },
   {
@@ -66,7 +78,9 @@ export const MOVIE_SLIDES = [
     movie: "La La Land",
     character: "Sebastian & Mia",
     poster: "https://image.tmdb.org/t/p/w780/uDO8zWDhfWwoFdKS4fzkUJt0Rf0.jpg",
-    bgImage: "https://image.tmdb.org/t/p/w1280/nlPCdZlHtRNcF6C9hzUH4ebmV1w.jpg",
+    tmdbBackdrop: "https://image.tmdb.org/t/p/w1280/nlPCdZlHtRNcF6C9hzUH4ebmV1w.jpg",
+    bgImage: "https://images.unsplash.com/photo-1514565131-fce0801e5785?auto=format&fit=crop&w=1920&q=80",
+    fallbackBgImage: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1920&q=80",
     themeColor: "#ec4899"
   },
   {
@@ -76,7 +90,9 @@ export const MOVIE_SLIDES = [
     movie: "Baahubali 2: The Conclusion",
     character: "Amarendra Baahubali",
     poster: "https://image.tmdb.org/t/p/w780/21sC2assImQIYCEDA84Qh9d1RsK.jpg",
-    bgImage: "https://image.tmdb.org/t/p/w1280/whNjsTOUVg2lZLCKgGhnACnmV8E.jpg",
+    tmdbBackdrop: "https://image.tmdb.org/t/p/w1280/whNjsTOUVg2lZLCKgGhnACnmV8E.jpg",
+    bgImage: "https://images.unsplash.com/photo-1432405972618-c60b0225b8f9?auto=format&fit=crop&w=1920&q=80",
+    fallbackBgImage: "https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?auto=format&fit=crop&w=1920&q=80",
     themeColor: "#eab308"
   },
   {
@@ -86,7 +102,9 @@ export const MOVIE_SLIDES = [
     movie: "The Godfather",
     character: "Vito Corleone",
     poster: "https://image.tmdb.org/t/p/w780/3bhkrj58Vtu7enYsRolD1fZdja1.jpg",
-    bgImage: "https://image.tmdb.org/t/p/w1280/tSPT36ZKlP2WVHJLM4cQPLSzv3b.jpg",
+    tmdbBackdrop: "https://image.tmdb.org/t/p/w1280/tSPT36ZKlP2WVHJLM4cQPLSzv3b.jpg",
+    bgImage: "https://images.unsplash.com/photo-1507679799987-c73779587ccf?auto=format&fit=crop&w=1920&q=80",
+    fallbackBgImage: "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=1920&q=80",
     themeColor: "#10b981"
   },
   {
@@ -96,7 +114,9 @@ export const MOVIE_SLIDES = [
     movie: "Sita Ramam",
     character: "Lieutenant Ram & Sita",
     poster: "https://image.tmdb.org/t/p/w780/t1O94ZBzsQXJihtVkrsStRLyUDR.jpg",
-    bgImage: "https://image.tmdb.org/t/p/w1280/28EqsZDeEAy4VMZfrYbiyJZznKn.jpg",
+    tmdbBackdrop: "https://image.tmdb.org/t/p/w1280/28EqsZDeEAy4VMZfrYbiyJZznKn.jpg",
+    bgImage: "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=1920&q=80",
+    fallbackBgImage: "https://images.unsplash.com/photo-1516589178581-6cd7833ae3b2?auto=format&fit=crop&w=1920&q=80",
     themeColor: "#ec4899"
   },
   {
@@ -106,7 +126,9 @@ export const MOVIE_SLIDES = [
     movie: "Game of Thrones",
     character: "House Stark",
     poster: "https://image.tmdb.org/t/p/w780/1XS1oqL89opfnbLl8WnZY1O1uJx.jpg",
-    bgImage: "https://image.tmdb.org/t/p/w1280/2OMB0ynKlyIenMJWI2Dy9IWT4c.jpg",
+    tmdbBackdrop: "https://image.tmdb.org/t/p/w1280/2OMB0ynKlyIenMJWI2Dy9IWT4c.jpg",
+    bgImage: "https://images.unsplash.com/photo-1514539079130-25950c84af65?auto=format&fit=crop&w=1920&q=80",
+    fallbackBgImage: "https://images.unsplash.com/photo-1517411032315-54ef2cb783bb?auto=format&fit=crop&w=1920&q=80",
     themeColor: "#3b82f6"
   },
   {
@@ -116,7 +138,9 @@ export const MOVIE_SLIDES = [
     movie: "Gangs of Wasseypur",
     character: "Sardar Khan",
     poster: "https://image.tmdb.org/t/p/w780/4nbvLoPDftqXV14w5Mv14iqgVrt.jpg",
-    bgImage: "https://image.tmdb.org/t/p/w1280/eByyqLrrdYySwYjus5RVCgbCNOD.jpg",
+    tmdbBackdrop: "https://image.tmdb.org/t/p/w1280/eByyqLrrdYySwYjus5RVCgbCNOD.jpg",
+    bgImage: "https://images.unsplash.com/photo-1513836279014-a89f7a76ae86?auto=format&fit=crop&w=1920&q=80",
+    fallbackBgImage: "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=1920&q=80",
     themeColor: "#d97706"
   },
   {
@@ -126,7 +150,9 @@ export const MOVIE_SLIDES = [
     movie: "Se7en",
     character: "Detective Somerset",
     poster: "https://image.tmdb.org/t/p/w780/191nKfP0ehp3uIvWqgPbFmI4lv9.jpg",
-    bgImage: "https://image.tmdb.org/t/p/w1280/i5H7zusQGsysGQ8i6P361Vnr0n2.jpg",
+    tmdbBackdrop: "https://image.tmdb.org/t/p/w1280/i5H7zusQGsysGQ8i6P361Vnr0n2.jpg",
+    bgImage: "https://images.unsplash.com/photo-1519501025264-65ba15a82390?auto=format&fit=crop&w=1920&q=80",
+    fallbackBgImage: "https://images.unsplash.com/photo-1509198397868-475647b2a1e5?auto=format&fit=crop&w=1920&q=80",
     themeColor: "#4f46e5"
   },
   {
@@ -136,7 +162,9 @@ export const MOVIE_SLIDES = [
     movie: "K.G.F: Chapter 1",
     character: "Rocky Bhai",
     poster: "https://image.tmdb.org/t/p/w780/ltHlJwvxKv7d0ooCiKSAvfwV9tX.jpg",
-    bgImage: "https://image.tmdb.org/t/p/w1280/4i1ofsSpfTuswHXcgPtXbZrSnoe.jpg",
+    tmdbBackdrop: "https://image.tmdb.org/t/p/w1280/4i1ofsSpfTuswHXcgPtXbZrSnoe.jpg",
+    bgImage: "https://images.unsplash.com/photo-1517824806704-9040b037703b?auto=format&fit=crop&w=1920&q=80",
+    fallbackBgImage: "https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&w=1920&q=80",
     themeColor: "#8b5cf6"
   },
   {
@@ -146,7 +174,9 @@ export const MOVIE_SLIDES = [
     movie: "Dangal",
     character: "Mahavir Singh Phogat",
     poster: "https://image.tmdb.org/t/p/w780/cJRPOLEexI7qp2DKtFfCh7YaaUG.jpg",
-    bgImage: "https://image.tmdb.org/t/p/w1280/l0fNAHLOFReQJsxCOmGWvJDnimn.jpg",
+    tmdbBackdrop: "https://image.tmdb.org/t/p/w1280/l0fNAHLOFReQJsxCOmGWvJDnimn.jpg",
+    bgImage: "https://images.unsplash.com/photo-1461896836934-ffe607ba8211?auto=format&fit=crop&w=1920&q=80",
+    fallbackBgImage: "https://images.unsplash.com/photo-1517649763962-0c623266ddc0?auto=format&fit=crop&w=1920&q=80",
     themeColor: "#3b82f6"
   },
   {
@@ -156,7 +186,9 @@ export const MOVIE_SLIDES = [
     movie: "Breaking Bad",
     character: "Walter White",
     poster: "https://image.tmdb.org/t/p/w780/anFx9aTOOYqgS3v7x3R84Kz67ly.jpg",
-    bgImage: "https://image.tmdb.org/t/p/w1280/tsRy63Mu5cu8etL1X7ZLyf7UP1M.jpg",
+    tmdbBackdrop: "https://image.tmdb.org/t/p/w1280/tsRy63Mu5cu8etL1X7ZLyf7UP1M.jpg",
+    bgImage: "https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?auto=format&fit=crop&w=1920&q=80",
+    fallbackBgImage: "https://images.unsplash.com/photo-1508873696983-2df5293cb325?auto=format&fit=crop&w=1920&q=80",
     themeColor: "#059669"
   },
   {
@@ -166,7 +198,9 @@ export const MOVIE_SLIDES = [
     movie: "Chinatown",
     character: "Jake Gittes",
     poster: "https://image.tmdb.org/t/p/w780/vIFUJnpJhs4RjG0LHlyHj3wVb5K.jpg",
-    bgImage: "https://image.tmdb.org/t/p/w1280/5GSnx4RRqMcBR8LUNJA7yhGVvr2.jpg",
+    tmdbBackdrop: "https://image.tmdb.org/t/p/w1280/5GSnx4RRqMcBR8LUNJA7yhGVvr2.jpg",
+    bgImage: "https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&w=1920&q=80",
+    fallbackBgImage: "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=1920&q=80",
     themeColor: "#f59e0b"
   },
   {
@@ -176,7 +210,9 @@ export const MOVIE_SLIDES = [
     movie: "Oppenheimer",
     character: "J. Robert Oppenheimer",
     poster: "https://image.tmdb.org/t/p/w780/8Gxv8gSFCU0XGDykEGv7zR1n2ua.jpg",
-    bgImage: "https://image.tmdb.org/t/p/w1280/neeNHeXjMF5fXoCJRsOmkNGC7q.jpg",
+    tmdbBackdrop: "https://image.tmdb.org/t/p/w1280/neeNHeXjMF5fXoCJRsOmkNGC7q.jpg",
+    bgImage: "https://images.unsplash.com/photo-1498084393753-b411b2d26b34?auto=format&fit=crop&w=1920&q=80",
+    fallbackBgImage: "https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&w=1920&q=80",
     themeColor: "#ea580c"
   },
   {
@@ -186,7 +222,9 @@ export const MOVIE_SLIDES = [
     movie: "The Dark Knight",
     character: "Bruce Wayne",
     poster: "https://image.tmdb.org/t/p/w780/qJ2tW6WMUDux911r6m7haRef0WH.jpg",
-    bgImage: "https://image.tmdb.org/t/p/w1280/dqK9Hag1054tghRQSqLSfrkvQnA.jpg",
+    tmdbBackdrop: "https://image.tmdb.org/t/p/w1280/dqK9Hag1054tghRQSqLSfrkvQnA.jpg",
+    bgImage: "https://images.unsplash.com/photo-1509198397868-475647b2a1e5?auto=format&fit=crop&w=1920&q=80",
+    fallbackBgImage: "https://images.unsplash.com/photo-1514565131-fce0801e5785?auto=format&fit=crop&w=1920&q=80",
     themeColor: "#6366f1"
   },
   {
@@ -196,7 +234,9 @@ export const MOVIE_SLIDES = [
     movie: "The Matrix",
     character: "Morpheus",
     poster: "https://image.tmdb.org/t/p/w780/dXNAPwY7VrqMAo51EKhhCJfaGb5.jpg",
-    bgImage: "https://image.tmdb.org/t/p/w1280/tlm8UkiQsitc8rSuIAscQDCnP8d.jpg",
+    tmdbBackdrop: "https://image.tmdb.org/t/p/w1280/tlm8UkiQsitc8rSuIAscQDCnP8d.jpg",
+    bgImage: "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?auto=format&fit=crop&w=1920&q=80",
+    fallbackBgImage: "https://images.unsplash.com/photo-1550751827-4bd374c3f58b?auto=format&fit=crop&w=1920&q=80",
     themeColor: "#10b981"
   },
   {
@@ -206,7 +246,9 @@ export const MOVIE_SLIDES = [
     movie: "The Lord of the Rings: The Fellowship of the Ring",
     character: "Gandalf",
     poster: "https://image.tmdb.org/t/p/w780/6oom5QYQ2yQTMJIbnvbkBL9cHo6.jpg",
-    bgImage: "https://image.tmdb.org/t/p/w1280/mWDdRXTivGE7aaY2vo1Ie0PfCX5.jpg",
+    tmdbBackdrop: "https://image.tmdb.org/t/p/w1280/mWDdRXTivGE7aaY2vo1Ie0PfCX5.jpg",
+    bgImage: "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=1920&q=80",
+    fallbackBgImage: "https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1920&q=80",
     themeColor: "#10b981"
   },
   {
@@ -216,7 +258,9 @@ export const MOVIE_SLIDES = [
     movie: "The Shawshank Redemption",
     character: "Andy Dufresne",
     poster: "https://image.tmdb.org/t/p/w780/9cqNxx0GxF0bflZmeSMuL5tnGzr.jpg",
-    bgImage: "https://image.tmdb.org/t/p/w1280/zfbjgQE1uSd9wiPTX4VzsLi0rGG.jpg",
+    tmdbBackdrop: "https://image.tmdb.org/t/p/w1280/zfbjgQE1uSd9wiPTX4VzsLi0rGG.jpg",
+    bgImage: "https://images.unsplash.com/photo-1515694346937-94d85e41e6f0?auto=format&fit=crop&w=1920&q=80",
+    fallbackBgImage: "https://images.unsplash.com/photo-1519501025264-65ba15a82390?auto=format&fit=crop&w=1920&q=80",
     themeColor: "#0284c7"
   },
   {
@@ -226,7 +270,9 @@ export const MOVIE_SLIDES = [
     movie: "Inception",
     character: "Dom Cobb",
     poster: "https://image.tmdb.org/t/p/w780/xlaY2zyzMfkhk0HSC5VUwzoZPU1.jpg",
-    bgImage: "https://image.tmdb.org/t/p/w1280/8ZTVqvKDQ8emSGUEMjsS4yHAwrp.jpg",
+    tmdbBackdrop: "https://image.tmdb.org/t/p/w1280/8ZTVqvKDQ8emSGUEMjsS4yHAwrp.jpg",
+    bgImage: "https://images.unsplash.com/photo-1513694203232-719a280e022f?auto=format&fit=crop&w=1920&q=80",
+    fallbackBgImage: "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=1920&q=80",
     themeColor: "#0284c7"
   },
   {
@@ -236,7 +282,9 @@ export const MOVIE_SLIDES = [
     movie: "Spirited Away",
     character: "Zeniba",
     poster: "https://image.tmdb.org/t/p/w780/39wmItIWsg5sZMyRUHLkWBcuVCM.jpg",
-    bgImage: "https://image.tmdb.org/t/p/w1280/dyJvKsNs2KP8qQnAXbRwDjblViy.jpg",
+    tmdbBackdrop: "https://image.tmdb.org/t/p/w1280/dyJvKsNs2KP8qQnAXbRwDjblViy.jpg",
+    bgImage: "https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?auto=format&fit=crop&w=1920&q=80",
+    fallbackBgImage: "https://images.unsplash.com/photo-1503899036084-c55cdd92da26?auto=format&fit=crop&w=1920&q=80",
     themeColor: "#f43f5e"
   },
   {
@@ -246,7 +294,9 @@ export const MOVIE_SLIDES = [
     movie: "Gladiator",
     character: "Maximus Decimus Meridius",
     poster: "https://image.tmdb.org/t/p/w780/wN2xWp1eIwCKOD0BHTcErTBv1Uq.jpg",
-    bgImage: "https://image.tmdb.org/t/p/w1280/jhk6D8pim3yaByu1801kMoxXFaX.jpg",
+    tmdbBackdrop: "https://image.tmdb.org/t/p/w1280/jhk6D8pim3yaByu1801kMoxXFaX.jpg",
+    bgImage: "https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=1920&q=80",
+    fallbackBgImage: "https://images.unsplash.com/photo-1552832230-c0197dd311b5?auto=format&fit=crop&w=1920&q=80",
     themeColor: "#d97706"
   },
   {
@@ -256,7 +306,9 @@ export const MOVIE_SLIDES = [
     movie: "Arrival",
     character: "Louise Banks",
     poster: "https://image.tmdb.org/t/p/w780/x2FJsf1ElAgr63Y3PNPtJrcmpoe.jpg",
-    bgImage: "https://image.tmdb.org/t/p/w1280/8MUZz7oPXQftFTslZpRP3CVMOoq.jpg",
+    tmdbBackdrop: "https://image.tmdb.org/t/p/w1280/8MUZz7oPXQftFTslZpRP3CVMOoq.jpg",
+    bgImage: "https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1920&q=80",
+    fallbackBgImage: "https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&w=1920&q=80",
     themeColor: "#6366f1"
   },
   {
@@ -266,7 +318,9 @@ export const MOVIE_SLIDES = [
     movie: "Fight Club",
     character: "Tyler Durden",
     poster: "https://image.tmdb.org/t/p/w780/jSziioSwPVrOy9Yow3XhWIBDjq1.jpg",
-    bgImage: "https://image.tmdb.org/t/p/w1280/c6OLXfKAk5BKeR6broC8pYiCquX.jpg",
+    tmdbBackdrop: "https://image.tmdb.org/t/p/w1280/c6OLXfKAk5BKeR6broC8pYiCquX.jpg",
+    bgImage: "https://images.unsplash.com/photo-1536440136628-849c177e76a1?auto=format&fit=crop&w=1920&q=80",
+    fallbackBgImage: "https://images.unsplash.com/photo-1513694203232-719a280e022f?auto=format&fit=crop&w=1920&q=80",
     themeColor: "#dc2626"
   },
   {
@@ -276,7 +330,9 @@ export const MOVIE_SLIDES = [
     movie: "Pulp Fiction",
     character: "Jules Winnfield",
     poster: "https://image.tmdb.org/t/p/w780/vQWk5YBFWF4bZaofAbv0tShwBvQ.jpg",
-    bgImage: "https://image.tmdb.org/t/p/w1280/suaEOtk1N1sgg2MTM7oZd2cfVp3.jpg",
+    tmdbBackdrop: "https://image.tmdb.org/t/p/w1280/suaEOtk1N1sgg2MTM7oZd2cfVp3.jpg",
+    bgImage: "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&w=1920&q=80",
+    fallbackBgImage: "https://images.unsplash.com/photo-1514933651103-005eec06c04b?auto=format&fit=crop&w=1920&q=80",
     themeColor: "#eab308"
   },
   {
@@ -286,7 +342,9 @@ export const MOVIE_SLIDES = [
     movie: "The Shining",
     character: "Jack Torrance",
     poster: "https://image.tmdb.org/t/p/w780/uAR0AWqhQL1hQa69UDEbb2rE5Wx.jpg",
-    bgImage: "https://image.tmdb.org/t/p/w1280/mmd1HnuvAzFc4iuVJcnBrhDNEKr.jpg",
+    tmdbBackdrop: "https://image.tmdb.org/t/p/w1280/mmd1HnuvAzFc4iuVJcnBrhDNEKr.jpg",
+    bgImage: "https://images.unsplash.com/photo-1517411032315-54ef2cb783bb?auto=format&fit=crop&w=1920&q=80",
+    fallbackBgImage: "https://images.unsplash.com/photo-1514539079130-25950c84af65?auto=format&fit=crop&w=1920&q=80",
     themeColor: "#b91c1c"
   },
   {
@@ -296,7 +354,9 @@ export const MOVIE_SLIDES = [
     movie: "Stranger Things",
     character: "Eleven",
     poster: "https://image.tmdb.org/t/p/w780/uOOtwVbSr4QDjAGIifLDwpb2Pdl.jpg",
-    bgImage: "https://image.tmdb.org/t/p/w1280/56v2KjBlU4XaOv9rVYEQypROD7P.jpg",
+    tmdbBackdrop: "https://image.tmdb.org/t/p/w1280/56v2KjBlU4XaOv9rVYEQypROD7P.jpg",
+    bgImage: "https://images.unsplash.com/photo-1509114397022-ed747cca3f65?auto=format&fit=crop&w=1920&q=80",
+    fallbackBgImage: "https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&w=1920&q=80",
     themeColor: "#8b5cf6"
   },
   {
@@ -306,7 +366,9 @@ export const MOVIE_SLIDES = [
     movie: "Before Sunrise",
     character: "Celine",
     poster: "https://image.tmdb.org/t/p/w780/kf1Jb1c2JAOqjuzA3H4oDM263uB.jpg",
-    bgImage: "https://image.tmdb.org/t/p/w1280/qA2TyqPldTtoTVY3LKrNIG5g6bH.jpg",
+    tmdbBackdrop: "https://image.tmdb.org/t/p/w1280/qA2TyqPldTtoTVY3LKrNIG5g6bH.jpg",
+    bgImage: "https://images.unsplash.com/photo-1516483638261-f4dbaf036963?auto=format&fit=crop&w=1920&q=80",
+    fallbackBgImage: "https://images.unsplash.com/photo-1514565131-fce0801e5785?auto=format&fit=crop&w=1920&q=80",
     themeColor: "#f43f5e"
   },
   {
@@ -316,7 +378,9 @@ export const MOVIE_SLIDES = [
     movie: "Attack on Titan",
     character: "Eren Yeager",
     poster: "https://image.tmdb.org/t/p/w780/hTP1DtLGFamjfu8WqjnuQdP1n4i.jpg",
-    bgImage: "https://image.tmdb.org/t/p/w1280/rqbCbjB19amtOtFQbb3K2lgm2zv.jpg",
+    tmdbBackdrop: "https://image.tmdb.org/t/p/w1280/rqbCbjB19amtOtFQbb3K2lgm2zv.jpg",
+    bgImage: "https://images.unsplash.com/photo-1533158307587-828f0a76ef46?auto=format&fit=crop&w=1920&q=80",
+    fallbackBgImage: "https://images.unsplash.com/photo-1514539079130-25950c84af65?auto=format&fit=crop&w=1920&q=80",
     themeColor: "#dc2626"
   },
   {
@@ -326,7 +390,9 @@ export const MOVIE_SLIDES = [
     movie: "Star Wars: The Empire Strikes Back",
     character: "Yoda",
     poster: "https://image.tmdb.org/t/p/w780/nNAeTmF4CtdSgMDplXTDPOpYzsX.jpg",
-    bgImage: "https://image.tmdb.org/t/p/w1280/k9pshruhCpJAdH9RaGJO6jaWQ4X.jpg",
+    tmdbBackdrop: "https://image.tmdb.org/t/p/w1280/k9pshruhCpJAdH9RaGJO6jaWQ4X.jpg",
+    bgImage: "https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&w=1920&q=80",
+    fallbackBgImage: "https://images.unsplash.com/photo-1446776811953-b23d57bd21aa?auto=format&fit=crop&w=1920&q=80",
     themeColor: "#3b82f6"
   }
 ];
